@@ -6,6 +6,9 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include "queue.c"
+
 
 
 int main(int argc, char* argv[]) {
@@ -41,9 +44,8 @@ int main(int argc, char* argv[]) {
           if(pthread_create(&(t_ids[i]), NULL, threadInit, NULL) != 0) {
               fprintf(stderr, "Error creating thread %d\n", i);
           }
+          else printf("Created!");
       }
-
-
 
 //FIFO PARA COMUNICAÇÃO, AINDA ERRADO POR CAUSA DO NOME
 
@@ -51,9 +53,9 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "Error creating fifo\n");
         return -3;
     }
+  else printf ("Cool!");
 
 //CHAMAR FUNCAO DE CRIAÇÃO DE CONTA DO ADMIN
-
-
+  unlink(SERVER_FIFO_PATH);
   return 0;
 }
