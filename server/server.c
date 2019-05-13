@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "queue.c"
+#include "types.h"
+#include "accountarray.h"
 
 
 
@@ -29,13 +31,8 @@ int main(int argc, char* argv[]) {
     printf("Wrong password size\n");
     return -2;
   }
-  else {
-    password +=1;
-    password -=1;
-  }
 
-
-
+//  unlink(SERVER_FIFO_PATH);
 //CRIACAO DE THREADS, PRECISAMOS DE UMA FUNCAO: func FOI O QUE PUS PROVISORIAMENTE
 
   pthread_t t_ids[num_threads];
@@ -48,16 +45,22 @@ int main(int argc, char* argv[]) {
       }
 
 //FIFO PARA COMUNICAÇÃO, AINDA ERRADO POR CAUSA DO NOME
-
+  int fd;
   if(mkfifo(SERVER_FIFO_PATH, 0660) != 0) {
         fprintf(stderr, "Error creating fifo\n");
         return -3;
     }
   else printf ("Cool!");
 
-  struct Queue * queue = createQueue(100);
+  fd = open(SERVER_FIFO_PATH, O_RDONLY | O_NONBLOCK);
 
-  
+  addAccount(bank);
+
+
+//  struct Queue * queue = createQueue(100);
+
+
+
 //CHAMAR FUNCAO DE CRIAÇÃO DE CONTA DO ADMIN
   unlink(SERVER_FIFO_PATH);
   return 0;
