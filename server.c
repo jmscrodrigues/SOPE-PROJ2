@@ -55,6 +55,9 @@ int main(int argc, char* argv[]) {
     }
   else printf ("Cool!");
 
+  struct Queue * queue = createQueue(100);
+
+  
 //CHAMAR FUNCAO DE CRIAÇÃO DE CONTA DO ADMIN
   unlink(SERVER_FIFO_PATH);
   return 0;
