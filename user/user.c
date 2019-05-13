@@ -12,5 +12,8 @@ int main(int argc, char* argv[]) {
      return -1;
   }
 
+  int fd1 = open(SERVER_FIFO_PATH, O_WRONLY );
+
+
     return 0;
 }
