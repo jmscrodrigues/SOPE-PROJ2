@@ -1,10 +1,10 @@
 CC=gcc
 CFLAGS=-I. -pthread
-DEPS = constants.h sope.h threadControl.h
-OBJ = server.o threadControl.o log.o 
+DEPS = constants.h sope.h 
+OBJ = user.o log.o 
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-server: $(OBJ)
+user: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
