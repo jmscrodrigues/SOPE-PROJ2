@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
-enum ret_code addAccount(struct bank_account acc);
-enum ret_code transferMoney(struct bank_account acc, struct bank_account destiny, int amount);
+struct tlv_reply addAccount(struct tlv_request request);
+struct tlv_reply transferMoney(struct tlv_request request);

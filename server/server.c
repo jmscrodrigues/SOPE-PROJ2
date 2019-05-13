@@ -54,7 +54,6 @@ int main(int argc, char* argv[]) {
 
   fd = open(SERVER_FIFO_PATH, O_RDONLY | O_NONBLOCK);
 
-  addAccount(bank);
 
 
 //  struct Queue * queue = createQueue(100);
