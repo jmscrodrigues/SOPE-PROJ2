@@ -172,3 +172,9 @@ typedef struct tlv_reply {
   uint32_t length;
   rep_value_t value;
 } __attribute__((packed)) tlv_reply_t;
+
+
+typedef struct account_mut {
+  struct bank_account bank;
+  pthread_mutex_t mutex;
+} __attribute__((packed)) account_mut_t;
