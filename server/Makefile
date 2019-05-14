@@ -1,7 +1,7 @@
 CC=gcc
-CFLAGS=-I. -pthread
+CFLAGS=-I. -pthread -Wall
 DEPS = constants.h sope.h threadControl.h
-OBJ = server.o threadControl.o log.o user.o
+OBJ = server.o threadControl.o log.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)

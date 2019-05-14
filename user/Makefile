@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-I. -pthread
+CFLAGS=-I. -pthread -Wall
 DEPS = constants.h sope.h 
 OBJ = user.o log.o 
 
