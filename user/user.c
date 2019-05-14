@@ -68,14 +68,14 @@ int main(int argc, char* argv[]) {
 
     char pid[6];
     sprintf(pid,"%d",getpid());
+    
     char response_fifo[USER_FIFO_PATH_LEN];
-
     strcpy(response_fifo, USER_FIFO_PATH_PREFIX);
     strcat(response_fifo,pid);
 
     fd = open(response_fifo, O_RDONLY );
     tlv_reply_t tlv_reply;
-    read(fd, &tlv_reply,sizeof(tlv_reply));//mudar para as mensagens tlv
+    read(fd, &tlv_reply,sizeof(tlv_reply));//lê mensagens tlv
 
     printf("%s",pid);
 

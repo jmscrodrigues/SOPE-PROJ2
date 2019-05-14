@@ -1,7 +1,7 @@
 #include "accountarray.h"
 
-static struct account_mut accounts[4097];
-static bool usedIds[4097] = {0};
+static struct account_mut accounts[MAX_BANK_ACCOUNTS+1];
+static bool usedIds[MAX_BANK_ACCOUNTS+1] = {0};
 
 struct tlv_reply addAccount(struct tlv_request request) {
   struct rep_header resp;
@@ -71,7 +71,7 @@ struct tlv_reply transferMoney(struct tlv_request request) {
 
 
   struct rep_transfer transf;
-  transf.balance = accounts[request.value.transfer.account_id].bank.balance += request.value.transfer.amount;
+  transf.balance = accounts[request.value.transfer.account_id].bank.balance + request.value.transfer.amount;
   resp_val.transfer = transf;
 
   struct tlv_reply reply;
@@ -107,8 +107,7 @@ struct tlv_reply transferMoney(struct tlv_request request) {
   pthread_mutex_unlock(&(accounts[request.value.transfer.account_id].mutex));
   pthread_mutex_unlock(&(accounts[request.value.header.account_id].mutex));
 
-  size = sizeof(resp_val);
-  reply.length = size;
+  reply.length = sizeof(resp_val);
   return reply;
 
 }

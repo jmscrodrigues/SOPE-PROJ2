@@ -39,7 +39,6 @@ int main(int argc, char* argv[]) {
     }
 
 //FIFO PARA COMUNICAÇÃO, AINDA ERRADO POR CAUSA DO NOME
-  int fd;
   if(mkfifo(SERVER_FIFO_PATH, 0660) != 0) {
         fprintf(stderr, "Error creating fifo\n");
         return -3;
