@@ -95,7 +95,7 @@ typedef struct req_transfer {
 
 /**
  * @brief Request message: header and arguments, if any.
- * 
+ *
  * This struct eases request message (de)serialization.
  */
 typedef struct req_value {
@@ -152,7 +152,7 @@ typedef struct rep_shutdown {
 
 /**
  * @brief Reply message: header and any returned info.
- * 
+ *
  * This struct eases reply message (de)serialization.
  */
 typedef struct rep_value {

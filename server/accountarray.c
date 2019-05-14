@@ -126,5 +126,6 @@ struct tlv_reply balanceCheck(struct tlv_request request) {
 }
 
 struct tlv_reply closeServer(struct tlv_request request) {
-  
+
+  //ESTE AQUI NAO SEI FAZER POR CAUSA DOS THREADS
 }

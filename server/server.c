@@ -12,7 +12,6 @@
 #include "accountarray.h"
 
 
-
 int main(int argc, char* argv[]) {
   if (argc != 3) {
      printf("Wrong number of arguments\n");
