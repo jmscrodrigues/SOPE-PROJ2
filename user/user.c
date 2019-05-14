@@ -23,46 +23,61 @@ int main(int argc, char* argv[]) {
 
     char argv5 [3][MAX_PASSWORD_LEN];
     argumentParser(argv[5], argv5);
- 
-        //-- req_header-----
-        req_header_t req_header;
-        req_header.pid = getpid();
-        req_header.account_id = atoi(argv[1]);
-        strcpy(req_header.password, argv[2]); //eventualmente fazer o Hash
-        req_header.op_delay_ms = atoi(argv[3]);
-        //----------------
-         //--req_value-------
-        /*req_value_t req_value;
-        req_value.header = req_header;
-        if(*argv[4]== '1'){
-            //req_create_account_t
-            //req_create_account_t req_create;
-           // req_create.account_id
-        }else   if(argv[4]== '3'){
-             //req_transfer_t
-        }*/
-        //------------------
-        //--tlv_request-----
-        tlv_request_t tlv_req;
-        tlv_req.type = atoi(argv[4]);
+
+    //-- req_header-----
+    req_header_t req_header;
+    req_header.pid = getpid();
+    req_header.account_id = atoi(argv[1]);
+    strcpy(req_header.password, argv[2]); //eventualmente fazer o Hash
+    req_header.op_delay_ms = atoi(argv[3]);
+    //----------------
+    //--req_value-------
+    req_value_t req_value;
+    req_value.header = req_header;
+    //--Opt-transfer--creation
+    if(*argv[4]== '1') {
+        //req_create_account_t
+        req_create_account_t req_create;
+        req_create.account_id = atoi(argv5[0]);
+        req_create.balance = atoi(argv5[1]);
+        strcpy(req_create.password, argv[2]);
+        //--req_value-creation-------
+        req_value.create = req_create;
         //------------------
 
-        int fd = open(SERVER_FIFO_PATH, O_WRONLY );
+    } else   if(*argv[4]== '3') {
+        //req_transfer_t
+        req_transfer_t req_transfer;
+        req_transfer.account_id = atoi(argv5[0]);
+        req_transfer.amount = atoi(argv5[1]);
+        //--req_value-transfer------
+        req_value.transfer = req_transfer;
+        //------------------
+    }
 
-        write(fd,&tlv_req, sizeof(tlv_req)); //mandar mensagem tlv
-        close(fd);
+    //--tlv_request-----
+    tlv_request_t tlv_req;
+    tlv_req.type = atoi(argv[4]);
+    tlv_req.length = sizeof(req_value);
+    //------------------
 
-        char pid[6];
-        sprintf(pid,"%d",getpid());
-        char response_fifo[USER_FIFO_PATH_LEN];
+    int fd = open(SERVER_FIFO_PATH, O_WRONLY );
 
-        strcpy(response_fifo, USER_FIFO_PATH_PREFIX);
-        strcat(response_fifo,pid);
+    write(fd,&tlv_req, sizeof(tlv_req)); //mandar mensagem tlv
+    close(fd);
 
-        fd = open(response_fifo, O_RDONLY );
-        read(fd, pid,6);//mudar para as mensagens tlv
+    char pid[6];
+    sprintf(pid,"%d",getpid());
+    char response_fifo[USER_FIFO_PATH_LEN];
 
-        printf("%s",pid);
+    strcpy(response_fifo, USER_FIFO_PATH_PREFIX);
+    strcat(response_fifo,pid);
+
+    fd = open(response_fifo, O_RDONLY );
+    tlv_reply_t tlv_reply;
+    read(fd, &tlv_reply,sizeof(tlv_reply));//mudar para as mensagens tlv
+
+    printf("%s",pid);
 
     return 0;
 }
