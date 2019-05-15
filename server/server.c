@@ -88,16 +88,22 @@ void * threadInit(void * args) {
     sleep(0.5);
   }
   printf("TRYING\n");
+
+  //VAI BUSCAR A QUEUE
   struct tlv_request request;
   request = requestFromQueue();
+
+  //TIRA O LOCK DA QUEUE
   pthread_mutex_unlock(&queue_mutex);
+
+  //ELABORA A RESPOSTA DA QUEUE
   struct tlv_reply answer;
   answer = requestParser(request);
 
 
      // codigo para abrir o fifo de resposta
 
-
+     //CRIA O FIFO DE RESPOSTA
   char response_fifo[USER_FIFO_PATH_LEN];
   char * pid = malloc(6);   // ex. 34567
   sprintf(pid, "%d", request.value.header.pid);
@@ -105,6 +111,7 @@ void * threadInit(void * args) {
   strcpy(response_fifo, USER_FIFO_PATH_PREFIX);
   strcat(response_fifo,pid);
 
+  //ABRE FIFO, ESCREVE E FECHA
   int fd = open(response_fifo, O_RDONLY );
 
   printf("Opened the response fifo!");
