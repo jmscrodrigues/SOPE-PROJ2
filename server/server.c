@@ -102,16 +102,14 @@ void * threadInit(void * args) {
   //VAI BUSCAR A QUEUE
   struct tlv_request request;
   request = requestFromQueue();
-
+ 
   //TIRA O LOCK DA QUEUE
   pthread_mutex_unlock(&queue_mutex);
 
   //ELABORA A RESPOSTA DA QUEUE
   struct tlv_reply answer;
   answer = requestParser(request);
-
-
-     // codigo para abrir o fifo de resposta
+  // codigo para abrir o fifo de resposta
 
      //CRIA O FIFO DE RESPOSTA
   char response_fifo[USER_FIFO_PATH_LEN];

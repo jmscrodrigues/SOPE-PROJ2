@@ -20,13 +20,15 @@ struct tlv_reply addAccount(struct tlv_request request) {
 
     uint32_t size;
 
-    if (request.value.header.account_id == 0) {
+    printf("1\n");
 
+    if (request.value.header.account_id == 0) {
         if (usedIds[request.value.create.account_id] == 0) {
             if (request.value.create.balance >= MIN_BALANCE) {
                 if (request.value.create.balance <= MAX_BALANCE) {
                     if (strlen(request.value.create.password) > MIN_PASSWORD_LEN) {
                         if (strlen(request.value.create.password) < MAX_PASSWORD_LEN) {
+
                             struct bank_account acc;
                             acc.account_id = request.value.create.account_id;
                             acc.balance = request.value.create.balance;
