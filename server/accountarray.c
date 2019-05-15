@@ -151,14 +151,13 @@ struct tlv_reply balanceCheck(struct tlv_request request) {
 
     struct rep_value resp_val;
     resp_val.header = resp;
-
     struct rep_balance bal;
     // LOCK NO MUTEX
     if (usedIds[request.value.header.account_id]  != 0) {
         pthread_mutex_lock(&(accounts[request.value.header.account_id].mutex));
     }
 
-    bal.balance = accounts[request.value.transfer.account_id].bank.balance;
+    bal.balance = accounts[request.value.header.account_id].bank.balance;
     resp_val.balance = bal;
 
     struct tlv_reply reply;
@@ -232,8 +231,6 @@ void generateHash(char pass[MAX_PASSWORD_LEN], char salt[SALT_LEN], char hash[HA
     strcpy(toHash,pass);
     strcat(toHash,salt);
 
-    printf("%s\n", toHash);
-
     FILE* tmp_passFile = fopen(passName, "w+");
 
     if(tmp_passFile == NULL) {
@@ -249,8 +246,6 @@ void generateHash(char pass[MAX_PASSWORD_LEN], char salt[SALT_LEN], char hash[HA
 
     char t_hash[HASH_LEN];
     getExternalCommand(hash,commands);
-
-    printf("%s",hash);
 
     remove("sope_secure_pass");
 }
