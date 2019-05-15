@@ -68,4 +68,4 @@ int rear(struct Queue* queue)
     if (isEmpty(queue))
         return INT_MIN;
     return queue->array[queue->rear];
-} 
+}

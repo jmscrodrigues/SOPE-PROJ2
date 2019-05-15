@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "constants.h"
-#include "threadControl.h"
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -10,6 +9,11 @@
 #include "queue.c"
 #include "types.h"
 #include "accountarray.h"
+
+static pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
+static struct Queue * queue;
+
+void * threadInit(void * args);
 
 
 int main(int argc, char* argv[]) {
@@ -26,8 +30,7 @@ int main(int argc, char* argv[]) {
     return -2;
   }
 
-  struct Queue * queue = createQueue(100);
-  pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+  queue = createQueue(100);
 
 //  unlink(SERVER_FIFO_PATH);
 //CRIACAO DE THREADS, PRECISAMOS DE UMA FUNCAO: func FOI O QUE PUS PROVISORIAMENTE
@@ -35,7 +38,7 @@ int main(int argc, char* argv[]) {
     pthread_t t_ids[num_threads];
     int i;
     for(i = 0; i < num_threads; i++) {
-        if(pthread_create(&(t_ids[i]), NULL, threadInit, &mut ) != 0) {
+        if(pthread_create(&(t_ids[i]), NULL, threadInit, NULL ) != 0) {
             fprintf(stderr, "Error creating thread %d\n", i);
         }
         else printf("Created thread!");
@@ -73,4 +76,13 @@ int main(int argc, char* argv[]) {
 //CHAMAR FUNCAO DE CRIAÇÃO DE CONTA DO ADMIN
     unlink(SERVER_FIFO_PATH);
     return 0;
+}
+
+void * threadInit(void * args) {
+
+  pthread_mutex_lock(&queue_mutex);
+  //RETIRAR DA QUEUE;
+  //VER QUAL A AÇÃO A CHAMAR
+  pthread_mutex_unlock(&queue_mutex);
+
 }
