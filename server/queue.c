@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "types.h"
 
 // A structure to represent a queue
 struct Queue
 {
     int front, rear, size;
     unsigned capacity;
-    int* array;
+    struct tlv_request* array;
 };
 
 // function to create a queue of given capacity.
@@ -18,7 +19,7 @@ struct Queue* createQueue(unsigned capacity)
     queue->capacity = capacity;
     queue->front = queue->size = 0;
     queue->rear = capacity - 1;  // This is important, see the enqueue
-    queue->array = (int*) malloc(queue->capacity * sizeof(int));
+    queue->array = malloc(queue->capacity * sizeof(struct tlv_request));
     return queue;
 }
 
@@ -32,40 +33,50 @@ int isEmpty(struct Queue* queue)
 
 // Function to add an item to the queue.
 // It changes rear and size
-void enqueue(struct Queue* queue, int item)
+void enqueue(struct Queue* queue, struct tlv_request item)
 {
     if (isFull(queue))
         return;
     queue->rear = (queue->rear + 1)%queue->capacity;
     queue->array[queue->rear] = item;
     queue->size = queue->size + 1;
-    printf("%d enqueued to queue\n", item);
+  //  printf("%d enqueued to queue\n", item);
 }
 
 // Function to remove an item from queue.
 // It changes front and size
-int dequeue(struct Queue* queue)
+struct tlv_request * dequeue(struct Queue* queue)
 {
     if (isEmpty(queue))
-        return INT_MIN;
-    int item = queue->array[queue->front];
+        return NULL;
+    struct tlv_request item = queue->array[queue->front];
     queue->front = (queue->front + 1)%queue->capacity;
     queue->size = queue->size - 1;
-    return item;
+    struct tlv_request *item_ret = &item;
+    return item_ret;
 }
 
 // Function to get front of queue
-int front(struct Queue* queue)
+struct tlv_request * front(struct Queue* queue)
 {
     if (isEmpty(queue))
-        return INT_MIN;
-    return queue->array[queue->front];
+        return NULL;
+    else  {
+      struct tlv_request * item_ret;
+      item_ret = &queue->array[queue->front];
+      return item_ret;
+    }
 }
 
 // Function to get rear of queue
-int rear(struct Queue* queue)
+struct tlv_request * rear(struct Queue* queue)
 {
     if (isEmpty(queue))
-        return INT_MIN;
-    return queue->array[queue->rear];
+        return NULL;
+    else {
+      struct tlv_request * item_ret;
+      item_ret = &queue->array[queue->rear];
+      return item_ret;
+    }
+
 }

@@ -44,13 +44,17 @@ int main(int argc, char* argv[]) {
         else printf("Created thread!");
     }
 
+    printf("Ended thread creation!\n");
+
 
 //FIFO PARA COMUNICAÇÃO, AINDA ERRADO POR CAUSA DO NOME
   if(mkfifo(SERVER_FIFO_PATH, 0660) != 0) {
         fprintf(stderr, "Error creating fifo\n");
         return -3;
     }
-    else printf ("Cool!");
+    else printf ("Cool!\n");
+
+    printf("Should make the fifo by now!\n");
 
     int fd = open(SERVER_FIFO_PATH, O_RDONLY );
 
@@ -68,19 +72,31 @@ int main(int argc, char* argv[]) {
     fd = open(response_fifo, O_RDONLY );
     write(fd,"\nBoiolas\n",19);
 
+    printf("Opened the response fifo!");
+
   fd = open(SERVER_FIFO_PATH, O_RDONLY | O_NONBLOCK);
 
+  printf("Got to this queue experiment!\n");
 
+  struct tlv_request tlv;
+  tlv.length = 10;
+
+  enqueue(queue,tlv);
+
+  printf("%d\n",front(queue)->length);
 
 
 //CHAMAR FUNCAO DE CRIAÇÃO DE CONTA DO ADMIN
+
     unlink(SERVER_FIFO_PATH);
+    printf("UNLINKED, ABOUT TO RETURN\n");
     return 0;
 }
 
 void * threadInit(void * args) {
 
   pthread_mutex_lock(&queue_mutex);
+  printf("TRYING\n");
   //RETIRAR DA QUEUE;
   //VER QUAL A AÇÃO A CHAMAR
   pthread_mutex_unlock(&queue_mutex);
