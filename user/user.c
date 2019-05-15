@@ -15,10 +15,16 @@ int main(int argc, char* argv[]) {
         printf("Usage: %s <ID> <password> <delay_ms> <operation> <args>\n", argv[0]);
         return -1;
     }
+    int argv4 = atoi(argv[4]);
 
-    if((strcmp(argv[4],"1") == 0 || strcmp(argv[4],"3") == 0 ) && strcmp(argv[5],"") != 0) {
-        printf("Operation 2 takes no arguments. Use \"\" \n");
+    if(argv4 > 4 || argv4 <1){
+        printf("<operation> must be between 1 and 4\n");
         return -2;
+    }
+
+    if((argv4 == 1 || argv4 == 3 ) && strcmp(argv[5],"") != 0) {
+        printf("Operation 2 takes no arguments. Use \"\" \n");
+        return -3;
     }
 
     char argv5 [3][MAX_PASSWORD_LEN];
@@ -35,7 +41,7 @@ int main(int argc, char* argv[]) {
     req_value_t req_value;
     req_value.header = req_header;
     //--Opt-transfer--creation
-    if(*argv[4]== '1') {
+    if( argv4 == 1) {
         //req_create_account_t
         req_create_account_t req_create;
         req_create.account_id = atoi(argv5[0]);
@@ -45,7 +51,7 @@ int main(int argc, char* argv[]) {
         req_value.create = req_create;
         //------------------
 
-    } else   if(*argv[4]== '3') {
+    } else   if(argv4== 3) {
         //req_transfer_t
         req_transfer_t req_transfer;
         req_transfer.account_id = atoi(argv5[0]);
@@ -57,7 +63,7 @@ int main(int argc, char* argv[]) {
 
     //--tlv_request-----
     tlv_request_t tlv_req;
-    tlv_req.type = atoi(argv[4]);
+    tlv_req.type = argv4;
     tlv_req.length = sizeof(req_value);
     //------------------
 
