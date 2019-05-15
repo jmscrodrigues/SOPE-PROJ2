@@ -14,6 +14,8 @@ static pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 static struct Queue * queue;
 
 void * threadInit(void * args);
+struct tlv_reply requestParser(struct tlv_request request);
+struct tlv_request requestFromQueue();
 
 
 int main(int argc, char* argv[]) {
@@ -64,7 +66,7 @@ int main(int argc, char* argv[]) {
     }
     tlv_request_t tlv_req;
     while(true) { // mudar este true para condição de encerramento do server
-        
+
         if (read(fd,&tlv_req,sizeof(tlv_request_t)) <= 0)
             continue;
 
@@ -80,23 +82,60 @@ int main(int argc, char* argv[]) {
 
 void * threadInit(void * args) {
 
-    /* pthread_mutex_lock(&queue_mutex);
-     printf("TRYING\n");
-     //RETIRAR DA QUEUE;
+  pthread_mutex_lock(&queue_mutex);
+  printf("TRYING\n");
+  struct tlv_request request;
+  request = requestFromQueue();
+  pthread_mutex_unlock(&queue_mutex);
+  struct tlv_reply answer;
+  answer = requestParser(request);
+
 
      // codigo para abrir o fifo de resposta
-     /*char response_fifo[USER_FIFO_PATH_LEN];
-
-         strcpy(response_fifo, USER_FIFO_PATH_PREFIX);
-         strcat(response_fifo,arr);
-
-         fd = open(response_fifo, O_RDONLY );
-
-         printf("Opened the response fifo!");
-     */
 
 
-    //VER QUAL A AÇÃO A CHAMAR
-    // pthread_mutex_unlock(&queue_mutex);
+     char response_fifo[USER_FIFO_PATH_LEN];
+     char * pid = malloc(6);   // ex. 34567
+     sprintf(pid, "%d", request.value.header.pid);
 
+     strcpy(response_fifo, USER_FIFO_PATH_PREFIX);
+     strcat(response_fifo,pid);
+
+     int fd = open(response_fifo, O_RDONLY );
+
+     printf("Opened the response fifo!");
+
+     write(fd,&answer, sizeof(answer));
+
+     close(fd);
+
+}
+
+struct tlv_reply requestParser(struct tlv_request request) {
+  switch(request.type) {
+    case OP_CREATE_ACCOUNT:
+    return addAccount(request);
+    break;
+
+    case OP_BALANCE:
+    return balanceCheck(request);
+    break;
+
+    case OP_TRANSFER:
+    return transferMoney(request);
+    break;
+
+    case OP_SHUTDOWN:
+    //AINDA SE TEM QUE FAZER ESTA, GOD KNOWS HOW
+    break;
+
+    default:
+    break;
+  }
+}
+
+struct tlv_request requestFromQueue() {
+  struct tlv_request * request;
+  request = dequeue(queue);
+  return *(request);  // espero que esteja correto
 }
