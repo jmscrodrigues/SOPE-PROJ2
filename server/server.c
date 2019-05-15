@@ -83,6 +83,10 @@ int main(int argc, char* argv[]) {
 void * threadInit(void * args) {
 
   pthread_mutex_lock(&queue_mutex);
+
+  while (isEmpty(queue)) {
+    sleep(0.5);
+  }
   printf("TRYING\n");
   struct tlv_request request;
   request = requestFromQueue();
@@ -94,20 +98,20 @@ void * threadInit(void * args) {
      // codigo para abrir o fifo de resposta
 
 
-     char response_fifo[USER_FIFO_PATH_LEN];
-     char * pid = malloc(6);   // ex. 34567
-     sprintf(pid, "%d", request.value.header.pid);
+  char response_fifo[USER_FIFO_PATH_LEN];
+  char * pid = malloc(6);   // ex. 34567
+  sprintf(pid, "%d", request.value.header.pid);
 
-     strcpy(response_fifo, USER_FIFO_PATH_PREFIX);
-     strcat(response_fifo,pid);
+  strcpy(response_fifo, USER_FIFO_PATH_PREFIX);
+  strcat(response_fifo,pid);
 
-     int fd = open(response_fifo, O_RDONLY );
+  int fd = open(response_fifo, O_RDONLY );
 
-     printf("Opened the response fifo!");
+  printf("Opened the response fifo!");
 
-     write(fd,&answer, sizeof(answer));
+  write(fd,&answer, sizeof(answer));
 
-     close(fd);
+  close(fd);
 
 }
 
