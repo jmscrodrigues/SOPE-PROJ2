@@ -24,15 +24,17 @@ int main(int argc, char* argv[]) {
 
     int num_threads = atoi(argv[1]);
 
-  char * password = argv[2];
-  if (strlen(password) > MAX_PASSWORD_LEN || strlen(password) < MIN_PASSWORD_LEN) {
-    printf("Wrong password size\n");
-    return -2;
-  }
+    char * password = argv[2];
+    if (strlen(password) > MAX_PASSWORD_LEN || strlen(password) < MIN_PASSWORD_LEN) {
+        printf("Wrong password size\n");
+        return -2;
+    }
 
-  queue = createQueue(100);
+    queue = createQueue(100);
 
-//  unlink(SERVER_FIFO_PATH);
+//CHAMAR FUNCAO DE CRIAÇÃO DE CONTA DO ADMIN
+
+
 //CRIACAO DE THREADS, PRECISAMOS DE UMA FUNCAO: func FOI O QUE PUS PROVISORIAMENTE
 
     pthread_t t_ids[num_threads];
@@ -47,46 +49,29 @@ int main(int argc, char* argv[]) {
     printf("Ended thread creation!\n");
 
 
-//FIFO PARA COMUNICAÇÃO, AINDA ERRADO POR CAUSA DO NOME
-  if(mkfifo(SERVER_FIFO_PATH, 0660) != 0) {
+//FIFO QUE RECEBE OS REQUESTS
+    if(mkfifo(SERVER_FIFO_PATH, 0660) != 0) {
         fprintf(stderr, "Error creating fifo\n");
         return -3;
     }
     else printf ("Cool!\n");
 
-    printf("Should make the fifo by now!\n");
+//ABRE E LÊ REQUESTS DO FIFO. SE NAO HOUVER ESPERA QUE HAJA
+    int fd = open(SERVER_FIFO_PATH, O_RDONLY | O_NONBLOCK);
+    if(fd == -1) {
+        printf("Could not open fifo\n");
+        return -4;
+    }
+    tlv_request_t tlv_req;
+    while(true) { // mudar este true para condição de encerramento do server
+        
+        if (read(fd,&tlv_req,sizeof(tlv_request_t)) <= 0)
+            continue;
 
-    int fd = open(SERVER_FIFO_PATH, O_RDONLY );
-
-    char arr[100];
-    read(fd,arr,sizeof(arr));
-
-    printf("User2: %s\n", arr);
+        enqueue(queue,tlv_req);
+        printf("len %d\n",tlv_req.type);
+    }
     close(fd);
-
-    char response_fifo[USER_FIFO_PATH_LEN];
-
-    strcpy(response_fifo, USER_FIFO_PATH_PREFIX);
-    strcat(response_fifo,arr);
-
-    fd = open(response_fifo, O_RDONLY );
-    write(fd,"\nBoiolas\n",19);
-
-    printf("Opened the response fifo!");
-
-  fd = open(SERVER_FIFO_PATH, O_RDONLY | O_NONBLOCK);
-
-  printf("Got to this queue experiment!\n");
-
-  struct tlv_request tlv;
-  tlv.length = 10;
-
-  enqueue(queue,tlv);
-
-  printf("%d\n",front(queue)->length);
-
-
-//CHAMAR FUNCAO DE CRIAÇÃO DE CONTA DO ADMIN
 
     unlink(SERVER_FIFO_PATH);
     printf("UNLINKED, ABOUT TO RETURN\n");
@@ -95,10 +80,23 @@ int main(int argc, char* argv[]) {
 
 void * threadInit(void * args) {
 
-  pthread_mutex_lock(&queue_mutex);
-  printf("TRYING\n");
-  //RETIRAR DA QUEUE;
-  //VER QUAL A AÇÃO A CHAMAR
-  pthread_mutex_unlock(&queue_mutex);
+    /* pthread_mutex_lock(&queue_mutex);
+     printf("TRYING\n");
+     //RETIRAR DA QUEUE;
+
+     // codigo para abrir o fifo de resposta
+     /*char response_fifo[USER_FIFO_PATH_LEN];
+
+         strcpy(response_fifo, USER_FIFO_PATH_PREFIX);
+         strcat(response_fifo,arr);
+
+         fd = open(response_fifo, O_RDONLY );
+
+         printf("Opened the response fifo!");
+     */
+
+
+    //VER QUAL A AÇÃO A CHAMAR
+    // pthread_mutex_unlock(&queue_mutex);
 
 }

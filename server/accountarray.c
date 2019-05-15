@@ -27,6 +27,7 @@ struct tlv_reply addAccount(struct tlv_request request) {
               acc.account_id = request.value.create.account_id;
               acc.balance = request.value.create.balance;
               strcpy(acc.salt,"saltTest123");
+              //criar hash
               strcpy(acc.hash,"teste");
               accounts[request.value.create.account_id].bank = acc;
               pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -53,8 +54,6 @@ struct tlv_reply addAccount(struct tlv_request request) {
     reply.length = size;
     return reply;
   }
-
-
 
 struct tlv_reply transferMoney(struct tlv_request request) {
   struct rep_header resp;
