@@ -1,7 +1,4 @@
 #include "accountarray.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
 
 static struct account_mut accounts[MAX_BANK_ACCOUNTS+1];
@@ -185,11 +182,6 @@ struct tlv_reply balanceCheck(struct tlv_request request) {
     reply.length = size;
     return reply;
 }
-/*
-struct tlv_reply closeServer(struct tlv_request request) {
-
-  //ESTE AQUI NAO SEI FAZER POR CAUSA DOS THREADS
-}*/
 
 void getExternalCommand(char* outPutStr, char* commands[]) {
 
@@ -227,7 +219,7 @@ void generateHash(char pass[MAX_PASSWORD_LEN], char salt[SALT_LEN], char hash[HA
     char toHash[MAX_PASSWORD_LEN + SALT_LEN];
     char passName[25];
     sprintf(passName,"sope_secure_pass%d",userID);
-  
+
     strcpy(toHash,pass);
     strcat(toHash,salt);
 

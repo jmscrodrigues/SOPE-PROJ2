@@ -12,10 +12,14 @@
 
 static pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 static struct Queue * queue;
+static bool workingThreads[MAX_BANK_OFFICES] = {0};
+static int threadNumber;
 
 void * threadInit(void * args);
+bool existingActiveThread();
 struct tlv_reply requestParser(struct tlv_request request);
 struct tlv_request requestFromQueue();
+struct tlv_reply closeServer(struct tlv_request request);
 
 
 
@@ -28,13 +32,14 @@ int main(int argc, char* argv[]) {
 
     char*  a= malloc(HASH_LEN);
 
-    
+
     if (argc != 3) {
         printf("Wrong number of arguments\n");
         return -1;
     }
 
     int num_threads = atoi(argv[1]);
+    threadNumber = num_threads;
 
     char * password = argv[2];
     if (strlen(password) > MAX_PASSWORD_LEN || strlen(password) < MIN_PASSWORD_LEN) {
@@ -46,17 +51,17 @@ int main(int argc, char* argv[]) {
 
 //CHAMAR FUNCAO DE CRIAÇÃO DE CONTA DO ADMIN
 
-
-//CRIACAO DE THREADS, PRECISAMOS DE UMA FUNCAO: func FOI O QUE PUS PROVISORIAMENTE
-
     pthread_t t_ids[num_threads];
     int i;
     for(i = 0; i < num_threads; i++) {
-        if(pthread_create(&(t_ids[i]), NULL, threadInit, NULL ) != 0) {
+       int *in = malloc(sizeof(int));
+       *in = i;
+        if(pthread_create(&(t_ids[i]), NULL, threadInit, in) != 0) {
             fprintf(stderr, "Error creating thread %d\n", i);
         }
         else printf("Created thread!");
     }
+
 
     printf("Ended thread creation!\n");
 
@@ -85,12 +90,14 @@ int main(int argc, char* argv[]) {
     }
     close(fd);
 
-    unlink(SERVER_FIFO_PATH);
+  //  unlink(SERVER_FIFO_PATH);
     printf("UNLINKED, ABOUT TO RETURN\n");
     return 0;
 }
 
 void * threadInit(void * args) {
+
+  int myNumber = * (int *) args;
 
   pthread_mutex_lock(&queue_mutex);
 
@@ -99,10 +106,12 @@ void * threadInit(void * args) {
   }
   printf("TRYING\n");
 
+  workingThreads[myNumber] = true;
+
   //VAI BUSCAR A QUEUE
   struct tlv_request request;
   request = requestFromQueue();
- 
+
   //TIRA O LOCK DA QUEUE
   pthread_mutex_unlock(&queue_mutex);
 
@@ -128,6 +137,8 @@ void * threadInit(void * args) {
 
   close(fd);
 
+  workingThreads[1] = false;
+
 }
 
 struct tlv_reply requestParser(struct tlv_request request) {
@@ -145,7 +156,7 @@ struct tlv_reply requestParser(struct tlv_request request) {
     break;
 
     case OP_SHUTDOWN:
-    //AINDA SE TEM QUE FAZER ESTA, GOD KNOWS HOW
+    return closeServer(request);
     break;
 
     default:
@@ -157,4 +168,51 @@ struct tlv_request requestFromQueue() {
   struct tlv_request * request;
   request = dequeue(queue);
   return *(request);  // espero que esteja correto
+}
+
+
+struct tlv_reply closeServer(struct tlv_request request) {
+  struct rep_header resp;
+  resp.account_id = request.value.header.account_id;
+
+  struct rep_value resp_val;
+  resp_val.header = resp;
+
+  unlink(SERVER_FIFO_PATH);
+
+  struct rep_shutdown shut;
+  int work = 0;
+  for (unsigned int i = 0; i < threadNumber; i++) {
+    if (workingThreads) {
+      work++;
+    }
+  }
+  shut.active_offices = work;
+
+
+  struct tlv_reply reply;
+  reply.value = resp_val;
+  reply.type = OP_SHUTDOWN;
+
+  uint32_t size;
+
+  if (request.value.header.account_id != 0) {
+    while (!existingActiveThread()){
+    }
+    resp.ret_code = RC_OK;
+  }
+  else {resp.ret_code = RC_OP_NALLOW;}
+
+  reply.length = sizeof(resp_val);
+  return reply;
+
+}
+
+bool existingActiveThread() {
+  for (unsigned int i = 0; i < threadNumber; i++) {
+    if (workingThreads) {
+      return false;
+    }
+  }
+  return true;
 }
