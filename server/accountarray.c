@@ -1,8 +1,25 @@
 #include "accountarray.h"
 
-
 static struct account_mut accounts[MAX_BANK_ACCOUNTS+1];
 static bool usedIds[MAX_BANK_ACCOUNTS+1] = {0};
+
+void creatAdmin(char * pass) {
+    bank_account_t admin;
+    admin.account_id = 0;
+    char salt[SALT_LEN];
+    generateSalt(salt);
+    strcpy(admin.salt,salt);
+    //Hash bae
+    char hash[HASH_LEN];
+    generateHash(pass, salt, hash, 0);
+    strcpy(admin.hash,hash);
+    admin.balance = 0;
+
+    accounts[0].bank = admin;
+    pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+    accounts[0].mutex =  mutex;
+    usedIds[0] = true;
+}
 
 struct tlv_reply addAccount(struct tlv_request request) {
     struct rep_header resp;
@@ -16,8 +33,6 @@ struct tlv_reply addAccount(struct tlv_request request) {
     reply.type = OP_CREATE_ACCOUNT;
 
     uint32_t size;
-
-    printf("1\n");
 
     if (request.value.header.account_id == 0) {
         if (usedIds[request.value.create.account_id] == 0) {
@@ -239,7 +254,7 @@ void generateHash(char pass[MAX_PASSWORD_LEN], char salt[SALT_LEN], char hash[HA
     char t_hash[HASH_LEN];
     getExternalCommand(hash,commands);
 
-    remove("sope_secure_pass");
+    remove(passName);
 }
 
 void generateSalt(char salt[SALT_LEN+1]) {
