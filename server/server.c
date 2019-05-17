@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "Error creating fifo\n");
         return -3;
     }
-  
+
 //ABRE E LÊ REQUESTS DO FIFO. SE NAO HOUVER ESPERA QUE HAJA
     int fd = open(SERVER_FIFO_PATH, O_RDONLY | O_NONBLOCK);
     if(fd == -1) {
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
             continue;
 
         enqueue(queue,tlv_req);
-        logRequest(STDOUT_FILENO,getpid(),&tlv_req);
+        logRequest(STDOUT_FILENO,tlv_req.value.header.pid,&tlv_req);
     }
     close(fd);
 
@@ -109,13 +109,11 @@ void requestHandler( tlv_request_t request, int threadNo) {
     //ABRE FIFO, ESCREVE E FECHA
     int fd = open(response_fifo, O_WRONLY );
 
-    if(fd < 0)
+    if(fd > 0)
         printf("DEBUG: %s\n",response_fifo);
-
     write(fd,&answer, sizeof(answer));
     close(fd);
     logReply(STDOUT_FILENO,threadNo, &answer);
-
     workingThreads[threadNo] = false;
 }
 
@@ -168,7 +166,7 @@ struct tlv_reply requestParser(struct tlv_request request) {
 struct tlv_request requestFromQueue() {
     tlv_request_t request;
     request = dequeue(queue);
-    logRequest(STDOUT_FILENO, getpid(),&request);
+    logRequest(STDOUT_FILENO, request.value.header.pid,&request);
     return request;  // espero que esteja correto
 }
 

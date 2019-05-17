@@ -87,12 +87,19 @@ int main(int argc, char* argv[]) {
     strcat(response_fifo,pid);
 
     printf("DEBUG: %s\n",response_fifo);
+    if(mkfifo(response_fifo, 0660) != 0) {
+        fprintf(stderr, "Error creating fifo\n");
+        return -5;
+    }
 
-    fd = open(response_fifo, O_RDONLY );
+    fd = open(response_fifo, O_RDONLY);
+    
     tlv_reply_t tlv_reply;
     if (read(fd, &tlv_reply,sizeof(tlv_reply)) > 0)//lê mensagens tlv
         logReply(STDOUT_FILENO,getpid(), &tlv_reply);
 
+    close(fd);
+    unlink(response_fifo);
     return 0;
 }
 
