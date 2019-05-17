@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
         req_create_account_t req_create;
         req_create.account_id = atoi(argv5[0]);
         req_create.balance = atoi(argv5[1]);
-        strcpy(req_create.password, argv[2]);
+        strcpy(req_create.password, argv5[2]);
         //--req_value-creation-------
         req_value.create = req_create;
         //------------------
@@ -70,6 +70,9 @@ int main(int argc, char* argv[]) {
     tlv_req.length = sizeof(req_value);
     tlv_req.value = req_value;
     //------------------
+
+    printf("%d %d %d %s\n",tlv_req.value.header.account_id,tlv_req.value.create.balance,tlv_req.value.create.account_id, tlv_req.value.create.password);
+
 
 
     int fd = open(SERVER_FIFO_PATH, O_WRONLY );
