@@ -111,7 +111,7 @@ void requestHandler( tlv_request_t request, int threadNo) {
 
     if(fd > 0)
         printf("DEBUG: %s\n",response_fifo);
-        
+
     write(fd,&answer, sizeof(answer));
     close(fd);
     //logReply(STDOUT_FILENO,threadNo, &answer);

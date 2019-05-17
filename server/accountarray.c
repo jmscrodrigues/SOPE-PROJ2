@@ -26,13 +26,9 @@ struct tlv_reply addAccount(struct tlv_request request) {
     resp.account_id = request.value.create.account_id;
 
     struct rep_value resp_val;
-    resp_val.header = resp;
 
     struct tlv_reply reply;
-    reply.value = resp_val;
-    reply.type = OP_CREATE_ACCOUNT;
 
-    uint32_t size;
 
     if (request.value.header.account_id == 0) {
         if (usedIds[request.value.create.account_id] == 0) {
@@ -57,6 +53,9 @@ struct tlv_reply addAccount(struct tlv_request request) {
                             accounts[request.value.create.account_id].mutex =  mutex;
                             usedIds[request.value.create.account_id] = true;
                             resp.ret_code = RC_OK;
+
+                            printf("\nid conta: %d\n", accounts[request.value.create.account_id].bank.account_id);
+                            printf("\nbooleano: %d\n", usedIds[request.value.create.account_id]);
                             /*size = sizeof(resp_val);
                             reply.length = size;
                             return reply;*/
@@ -86,8 +85,10 @@ struct tlv_reply addAccount(struct tlv_request request) {
         resp.ret_code = RC_OP_NALLOW;
     }
 
-    size = sizeof(resp_val);
-    reply.length = size;
+    reply.type = OP_CREATE_ACCOUNT;
+    resp_val.header = resp;
+    reply.value = resp_val;
+    reply.length = sizeof(resp_val);
     return reply;
 }
 
@@ -96,24 +97,18 @@ struct tlv_reply transferMoney(struct tlv_request request) {
     resp.account_id = request.value.header.account_id;
 
     struct rep_value resp_val;
-    resp_val.header = resp;
-    printf("vou transferir \n");
+
 
     if (usedIds[request.value.transfer.account_id] != 0 && usedIds[request.value.header.account_id] != 0) {
         pthread_mutex_lock(&(accounts[request.value.transfer.account_id].mutex));
         pthread_mutex_lock(&(accounts[request.value.header.account_id].mutex));
     }
-     printf("dei lock\n");
-    //TESTAR MUTEX E TENTAR ACEDER
+        //TESTAR MUTEX E TENTAR ACEDER
 
 
     struct rep_transfer transf;
-    transf.balance = accounts[request.value.transfer.account_id].bank.balance + request.value.transfer.amount;
-    resp_val.transfer = transf;
 
     struct tlv_reply reply;
-    reply.value = resp_val;
-    reply.type = OP_TRANSFER;
 
     uint32_t size;
 
@@ -156,10 +151,17 @@ struct tlv_reply transferMoney(struct tlv_request request) {
     //RESETAR MUTEX
     pthread_mutex_unlock(&(accounts[request.value.transfer.account_id].mutex));
     pthread_mutex_unlock(&(accounts[request.value.header.account_id].mutex));
-     printf("dei unlock\n");
 
-     printf("%d\n",accounts[request.value.transfer.account_id].bank.balance);
+    printf("dei unlock\n");
 
+    printf("%d\n",accounts[request.value.transfer.account_id].bank.balance);
+
+
+    reply.type = OP_TRANSFER;
+    transf.balance = accounts[request.value.transfer.account_id].bank.balance + request.value.transfer.amount;
+    resp_val.transfer = transf;
+    resp_val.header = resp;
+    reply.value = resp_val;
     reply.length = sizeof(resp_val);
     return reply;
 
@@ -171,25 +173,28 @@ struct tlv_reply balanceCheck(struct tlv_request request) {
     resp.account_id = request.value.header.account_id;
 
     struct rep_value resp_val;
-    resp_val.header = resp;
+
     struct rep_balance bal;
+
+    printf("\nid conta: %d\n", accounts[request.value.header.account_id].bank.account_id);
+    printf("\nbooleano: %d\n", usedIds[request.value.header.account_id]);
+
     // LOCK NO MUTEX
     if (usedIds[request.value.header.account_id]  != 0) {
         pthread_mutex_lock(&(accounts[request.value.header.account_id].mutex));
+        printf("Bloqueou mutex!\n");
     }
 
-    bal.balance = accounts[request.value.header.account_id].bank.balance;
-    resp_val.balance = bal;
 
     struct tlv_reply reply;
-    reply.value = resp_val;
-    reply.type = OP_BALANCE;
 
-    uint32_t size;
 
     if (request.value.header.account_id != 0) {
+      printf("DIFERENTE DO ADMIN NO BALANCE\n");
         if (usedIds[request.value.header.account_id]  != 0) {
+            printf("CONTA EXISTE, A CHECKAR BALANCE\n");
             resp.ret_code = RC_OK;
+              printf("OK\n");
         }
         else {
             resp.ret_code = RC_ID_NOT_FOUND;
@@ -201,9 +206,16 @@ struct tlv_reply balanceCheck(struct tlv_request request) {
 
     //RESETAR MUTEX
     pthread_mutex_unlock(&(accounts[request.value.header.account_id].mutex));
+    printf("Resetou mutex \n");
 
-    size+=sizeof(resp_val);
-    reply.length = size;
+    bal.balance = accounts[request.value.header.account_id].bank.balance;
+    reply.value = resp_val;
+    reply.type = OP_BALANCE;
+    printf("HALFWAY DONE\n");
+    resp_val.balance = bal;
+    resp_val.header = resp;
+    reply.length = sizeof(resp_val);
+    printf("A enviar balance: %d", reply.value.balance.balance);
     return reply;
 }
 
