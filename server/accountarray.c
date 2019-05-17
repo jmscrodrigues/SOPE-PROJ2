@@ -4,7 +4,7 @@ struct account_mut * accounts;
 static bool usedIds[MAX_BANK_ACCOUNTS+1] = {0};
 
 void setAccountsArray(struct account_mut * acc) {
-  accounts = acc;
+    accounts = acc;
 }
 
 void creatAdmin(char * pass) {
@@ -33,14 +33,12 @@ struct tlv_reply addAccount(struct tlv_request request) {
 
     struct tlv_reply reply;
 
-
     if (request.value.header.account_id == 0) {
         if (usedIds[request.value.create.account_id] == 0) {
             if (request.value.create.balance >= MIN_BALANCE) {
                 if (request.value.create.balance <= MAX_BALANCE) {
                     if (strlen(request.value.create.password) > MIN_PASSWORD_LEN) {
                         if (strlen(request.value.create.password) < MAX_PASSWORD_LEN) {
-
                             struct account_mut acc;
                             acc.bank.account_id = request.value.create.account_id;
                             printf("ID A CRIAR: %d\n", acc.bank.account_id);
@@ -64,9 +62,6 @@ struct tlv_reply addAccount(struct tlv_request request) {
 
                             printf("\nid conta: %d\n", accounts[request.value.create.account_id].bank.account_id);
                             printf("\nbooleano: %d\n", usedIds[request.value.create.account_id]);
-                            /*size = sizeof(resp_val);
-                            reply.length = size;
-                            return reply;*/
                         }
                         else {
                             resp.ret_code = RC_OTHER;
@@ -113,7 +108,7 @@ struct tlv_reply transferMoney(struct tlv_request request) {
         pthread_mutex_lock(&(accounts[request.value.transfer.account_id].mutex));
         pthread_mutex_lock(&(accounts[request.value.header.account_id].mutex));
     }
-        //TESTAR MUTEX E TENTAR ACEDER
+    //TESTAR MUTEX E TENTAR ACEDER
 
 
     struct rep_transfer transf;
@@ -124,13 +119,13 @@ struct tlv_reply transferMoney(struct tlv_request request) {
 
     if (request.value.header.account_id != 0) {
         if (request.value.header.account_id != request.value.transfer.account_id) {
-             printf("1 \n");
+            printf("1 \n");
             if (usedIds[request.value.transfer.account_id] != 0) {
                 printf("2 \n");
                 if (accounts[request.value.header.account_id].bank.balance - request.value.transfer.amount > MIN_BALANCE) {
                     printf("3 \n");
                     if (accounts[request.value.transfer.account_id].bank.balance + request.value.transfer.amount < MAX_BALANCE) {
-                         printf("tudo suss \n");
+                        printf("tudo suss \n");
                         accounts[request.value.transfer.account_id].bank.balance += request.value.transfer.amount;
                         accounts[request.value.header.account_id].bank.balance -= request.value.transfer.amount;
                         resp.ret_code = RC_OK;
@@ -200,11 +195,11 @@ struct tlv_reply balanceCheck(struct tlv_request request) {
 
 
     if (request.value.header.account_id != 0) {
-      printf("DIFERENTE DO ADMIN NO BALANCE\n");
+        printf("DIFERENTE DO ADMIN NO BALANCE\n");
         if (usedIds[request.value.header.account_id]  != 0) {
             printf("CONTA EXISTE, A CHECKAR BALANCE\n");
             resp.ret_code = RC_OK;
-              printf("OK\n");
+            printf("OK\n");
         }
         else {
             resp.ret_code = RC_ID_NOT_FOUND;

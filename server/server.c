@@ -51,8 +51,6 @@ int main(int argc, char* argv[]) {
 
     queue = createQueue(100);
 
-
-
     pthread_t t_ids[num_threads];
     int i;
     for(i = 0; i < num_threads; i++) {
@@ -103,21 +101,22 @@ void requestHandler( tlv_request_t request, int threadNo) {
 
     //CRIA O FIFO DE RESPOSTA
     char response_fifo[USER_FIFO_PATH_LEN];
-    char * pid = malloc(6);   // ex. 34567
-    sprintf(pid, "%d", request.value.header.pid);
-
-    strcpy(response_fifo, USER_FIFO_PATH_PREFIX);
-    strcat(response_fifo,pid);
+    sprintf(response_fifo, "%s%d", USER_FIFO_PATH_PREFIX,request.value.header.pid);
 
     //ABRE FIFO, ESCREVE E FECHA
-    int fd = open(response_fifo, O_WRONLY );
+    printf("DEBUG: %s\n",response_fifo);
 
-    if(fd > 0)
-        printf("DEBUG: %s\n",response_fifo);
+    int fd = open(response_fifo, O_WRONLY);
+    int attempts = 0;
+
+    while(fd < 0 && attempts < 10) {
+        fd = open(response_fifo, O_WRONLY);
+        attempts++;
+    }
 
     write(fd,&answer, sizeof(answer));
     close(fd);
-    //logReply(STDOUT_FILENO,threadNo, &answer);
+    logReply(STDOUT_FILENO,threadNo, &answer);
     workingThreads[threadNo] = false;
 }
 

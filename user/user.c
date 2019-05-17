@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
     req_header.pid = getpid();
 
     req_header.account_id = atoi(argv[1]);
-    strcpy(req_header.password, argv[2]); //eventualmente fazer o Hash
+    strcpy(req_header.password, argv[2]);
     req_header.op_delay_ms = atoi(argv[3]);
     //----------------
     //--req_value-------
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
         req_value.create = req_create;
         //------------------
 
-    } else   if(argv4== 2) {
+    } else if(argv4== 2) {
         //req_transfer_t
         req_transfer_t req_transfer;
         req_transfer.account_id = atoi(argv5[0]);
@@ -79,30 +79,51 @@ int main(int argc, char* argv[]) {
     logRequest(STDOUT_FILENO,getpid(),&tlv_req);
 
 
-    char pid[6];
-    sprintf(pid,"%d",getpid());
+  char response_fifo[USER_FIFO_PATH_LEN];
+    sprintf(response_fifo, "%s%d", USER_FIFO_PATH_PREFIX, getpid());
 
-    char response_fifo[USER_FIFO_PATH_LEN];
-    strcpy(response_fifo, USER_FIFO_PATH_PREFIX);
-    strcat(response_fifo,pid);
-
-    printf("DEBUG: %s\n",response_fifo);
     if(mkfifo(response_fifo, 0660) != 0) {
         fprintf(stderr, "Error creating fifo\n");
         return -5;
     }
 
-    fd = open(response_fifo, O_RDONLY);
-    printf("1\n");
-    
-    tlv_reply_t tlv_reply;
-    if (read(fd, &tlv_reply,sizeof(tlv_reply)) > 0)//lê mensagens tlv
-        logReply(STDOUT_FILENO,getpid(), &tlv_reply);
 
-    printf("2\n");
+    fd = open(response_fifo, O_RDONLY | O_NONBLOCK);
+
+    if(fd < 0) {
+        printf("es feio\n");
+    } else {
+        printf("es feio2\n");
+    }
+
+    tlv_reply_t tlv_reply;
+
+    int time = FIFO_TIMEOUT_SECS;
+    while(time) {
+
+        if (read(fd, &tlv_reply,sizeof(tlv_reply)) > 0) { //lê mensagens tlv
+            logReply(STDOUT_FILENO,getpid(), &tlv_reply);
+            close(fd);
+            unlink(response_fifo);
+            return 0;
+        }
+        time--;
+        sleep(1);
+    }
+
+    tlv_reply.type = tlv_req.type;
+    tlv_reply.value.header.account_id = tlv_req.value.header.account_id;
+    tlv_reply.value.header.ret_code = RC_SRV_TIMEOUT;
+    tlv_reply.value.balance.balance = 0;
+    tlv_reply.value.shutdown.active_offices = 0;
+    tlv_reply.value.transfer.balance = 0;
+    tlv_reply.length = sizeof(tlv_reply.value);
+
+    logReply(STDOUT_FILENO,getpid(),&tlv_reply);
 
     close(fd);
     unlink(response_fifo);
+
     return 0;
 }
 
