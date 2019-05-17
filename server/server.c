@@ -21,6 +21,7 @@ bool existingActiveThread();
 struct tlv_reply requestParser(struct tlv_request request);
 struct tlv_request requestFromQueue();
 struct tlv_reply closeServer(struct tlv_request request);
+bool checkPassword(struct tlv_request req);
 
 
 
@@ -144,6 +145,7 @@ void * threadInit(void * args) {
 }
 
 struct tlv_reply requestParser(struct tlv_request request) {
+
     switch(request.type) {
     case OP_CREATE_ACCOUNT:
         return addAccount(request);

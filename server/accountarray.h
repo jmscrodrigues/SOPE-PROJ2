@@ -18,3 +18,4 @@ void getExternalCommand(char* outPutStr, char* commands[]);
 void generateSalt(char salt[SALT_LEN]);
 void creatAdmin(char * pass);
 void setAccountsArray(struct account_mut * acc);
+bool checkPassword(struct tlv_request req);

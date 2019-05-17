@@ -33,17 +33,20 @@ struct tlv_reply addAccount(struct tlv_request request) {
 
     struct tlv_reply reply;
 
+    printf("\nPrinting the boolean: %d\n", checkPassword(request));
+
     if (request.value.header.account_id == 0) {
         if (usedIds[request.value.create.account_id] == 0) {
+
             if (request.value.create.balance >= MIN_BALANCE) {
                 if (request.value.create.balance <= MAX_BALANCE) {
                     if (strlen(request.value.create.password) > MIN_PASSWORD_LEN) {
                         if (strlen(request.value.create.password) < MAX_PASSWORD_LEN) {
                             struct account_mut acc;
                             acc.bank.account_id = request.value.create.account_id;
-                            printf("ID A CRIAR: %d\n", acc.bank.account_id);
+                          //  printf("ID A CRIAR: %d\n", acc.bank.account_id);
                             acc.bank.balance = request.value.create.balance;
-                            printf("\nthe real balance: %d\n", acc.bank.balance);
+                          //  printf("\nthe real balance: %d\n", acc.bank.balance);
                             //Salt bae
                             char salt[SALT_LEN];
                             generateSalt(salt);
@@ -56,12 +59,12 @@ struct tlv_reply addAccount(struct tlv_request request) {
                             acc.mutex =  mutex;
                             usedIds[request.value.create.account_id] = true;
                             accounts[request.value.create.account_id] = acc;
-                            printf("OU VAI OU RACHA CRL: %d\n",accounts[request.value.create.account_id].bank.balance);
-                            printf("ID? %d", accounts[request.value.create.account_id].bank.account_id);
+                        //    printf("OU VAI OU RACHA CRL: %d\n",accounts[request.value.create.account_id].bank.balance);
+                        //    printf("ID? %d", accounts[request.value.create.account_id].bank.account_id);
                             resp.ret_code = RC_OK;
 
-                            printf("\nid conta: %d\n", accounts[request.value.create.account_id].bank.account_id);
-                            printf("\nbooleano: %d\n", usedIds[request.value.create.account_id]);
+                        //    printf("\nid conta: %d\n", accounts[request.value.create.account_id].bank.account_id);
+                        //    printf("\nbooleano: %d\n", usedIds[request.value.create.account_id]);
                         }
                         else {
                             resp.ret_code = RC_OTHER;
@@ -93,7 +96,7 @@ struct tlv_reply addAccount(struct tlv_request request) {
     reply.value = resp_val;
     reply.length = sizeof(resp_val);
 
-    printf("BALANCE: %d", accounts[request.value.header.account_id].bank.balance);
+  //  printf("BALANCE: %d", accounts[request.value.create.account_id].bank.balance);
     return reply;
 }
 
@@ -103,13 +106,13 @@ struct tlv_reply transferMoney(struct tlv_request request) {
 
     struct rep_value resp_val;
 
-
     if (usedIds[request.value.transfer.account_id] != 0 && usedIds[request.value.header.account_id] != 0) {
         pthread_mutex_lock(&(accounts[request.value.transfer.account_id].mutex));
         pthread_mutex_lock(&(accounts[request.value.header.account_id].mutex));
     }
     //TESTAR MUTEX E TENTAR ACEDER
 
+    printf("\nPrinting the boolean: %d\n", checkPassword(request));
 
     struct rep_transfer transf;
 
@@ -119,19 +122,17 @@ struct tlv_reply transferMoney(struct tlv_request request) {
 
     if (request.value.header.account_id != 0) {
         if (request.value.header.account_id != request.value.transfer.account_id) {
-            printf("1 \n");
+          //  printf("1 \n");
             if (usedIds[request.value.transfer.account_id] != 0) {
-                printf("2 \n");
-                if (accounts[request.value.header.account_id].bank.balance - request.value.transfer.amount > MIN_BALANCE) {
-                    printf("3 \n");
-                    if (accounts[request.value.transfer.account_id].bank.balance + request.value.transfer.amount < MAX_BALANCE) {
-                        printf("tudo suss \n");
+              //  printf("2 \n");
+                if (((accounts[request.value.header.account_id].bank.balance) - (request.value.transfer.amount)) > MIN_BALANCE) {
+                  //  printf("3 \n");
+                    if (((accounts[request.value.transfer.account_id].bank.balance) + (request.value.transfer.amount)) < MAX_BALANCE) {
+                    //    printf("tudo suss \n");
                         accounts[request.value.transfer.account_id].bank.balance += request.value.transfer.amount;
                         accounts[request.value.header.account_id].bank.balance -= request.value.transfer.amount;
                         resp.ret_code = RC_OK;
-                        /*  size = sizeof(resp_val);
-                          reply.length = size;
-                          return reply;*/
+
                     }
                     else {
                         resp.ret_code = RC_TOO_HIGH;
@@ -157,13 +158,13 @@ struct tlv_reply transferMoney(struct tlv_request request) {
     pthread_mutex_unlock(&(accounts[request.value.transfer.account_id].mutex));
     pthread_mutex_unlock(&(accounts[request.value.header.account_id].mutex));
 
-    printf("dei unlock\n");
+    //printf("dei unlock\n");
 
-    printf("%d\n",accounts[request.value.transfer.account_id].bank.balance);
+  //  printf("%d\n",accounts[request.value.transfer.account_id].bank.balance);
 
 
     reply.type = OP_TRANSFER;
-    transf.balance = accounts[request.value.transfer.account_id].bank.balance + request.value.transfer.amount;
+    transf.balance = accounts[request.value.transfer.account_id].bank.balance;
     resp_val.transfer = transf;
     resp_val.header = resp;
     reply.value = resp_val;
@@ -181,13 +182,15 @@ struct tlv_reply balanceCheck(struct tlv_request request) {
 
     struct rep_balance bal;
 
-    printf("\nid conta: %d\n", accounts[request.value.header.account_id].bank.account_id);
-    printf("\nbooleano: %d\n", usedIds[request.value.header.account_id]);
+    printf("\nPrinting the boolean: %d\n", checkPassword(request));
+
+  //  printf("\nid conta: %d\n", accounts[request.value.header.account_id].bank.account_id);
+  //  printf("\nbooleano: %d\n", usedIds[request.value.header.account_id]);
 
     // LOCK NO MUTEX
     if (usedIds[request.value.header.account_id]  != 0) {
         pthread_mutex_lock(&(accounts[request.value.header.account_id].mutex));
-        printf("Bloqueou mutex!\n");
+      //  printf("Bloqueou mutex!\n");
     }
 
 
@@ -195,11 +198,11 @@ struct tlv_reply balanceCheck(struct tlv_request request) {
 
 
     if (request.value.header.account_id != 0) {
-        printf("DIFERENTE DO ADMIN NO BALANCE\n");
+    //    printf("DIFERENTE DO ADMIN NO BALANCE\n");
         if (usedIds[request.value.header.account_id]  != 0) {
-            printf("CONTA EXISTE, A CHECKAR BALANCE\n");
+      //      printf("CONTA EXISTE, A CHECKAR BALANCE\n");
             resp.ret_code = RC_OK;
-            printf("OK\n");
+      //      printf("OK\n");
         }
         else {
             resp.ret_code = RC_ID_NOT_FOUND;
@@ -211,16 +214,17 @@ struct tlv_reply balanceCheck(struct tlv_request request) {
 
     //RESETAR MUTEX
     pthread_mutex_unlock(&(accounts[request.value.header.account_id].mutex));
-    printf("Resetou mutex \n");
+  //  printf("Resetou mutex \n");
 
     bal.balance = accounts[request.value.header.account_id].bank.balance;
-    reply.value = resp_val;
+  //  printf("O balance do menino: %d", bal.balance);
     reply.type = OP_BALANCE;
-    printf("HALFWAY DONE\n");
+  //  printf("HALFWAY DONE\n");
     resp_val.balance = bal;
     resp_val.header = resp;
+    reply.value = resp_val;
     reply.length = sizeof(resp_val);
-    printf("A enviar balance: %d", reply.value.balance.balance);
+  //  printf("A enviar balance: %d", reply.value.balance.balance);
     return reply;
 }
 
@@ -290,4 +294,23 @@ void generateSalt(char salt[SALT_LEN+1]) {
     for( int i = 0 ; i < SALT_LEN; i++ ) {
         salt[i] = hex_digits[ ( rand() % 16 ) ];
     }
+}
+
+bool checkPassword(struct tlv_request req) {
+  char newHash[HASH_LEN +1];
+  char oldHash[HASH_LEN + 1];
+  char salt[SALT_LEN +1];
+
+  strcpy(salt, accounts[req.value.header.account_id].bank.salt);//salt = accounts[req.value.header.account_id].bank.salt;
+  strcpy(oldHash, accounts[req.value.header.account_id].bank.hash);
+  generateHash(req.value.header.password, salt,newHash, rand() % 100 + 1);
+
+  printf("HASH NOVO: %s\n", newHash);
+  printf("HASH ANTIGO: %s\n", oldHash);
+
+
+  if (strncmp(newHash,oldHash,HASH_LEN) == 0) {
+    return true;
+  }
+  else return false;
 }
