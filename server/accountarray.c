@@ -79,6 +79,7 @@ struct tlv_reply addAccount(struct tlv_request request) {
         }
         else {
             resp.ret_code = RC_ID_IN_USE;
+            printf("\n in use \n");
         }
     }
     else {
@@ -96,11 +97,13 @@ struct tlv_reply transferMoney(struct tlv_request request) {
 
     struct rep_value resp_val;
     resp_val.header = resp;
+    printf("vou transferir \n");
 
     if (usedIds[request.value.transfer.account_id] != 0 && usedIds[request.value.header.account_id] != 0) {
         pthread_mutex_lock(&(accounts[request.value.transfer.account_id].mutex));
         pthread_mutex_lock(&(accounts[request.value.header.account_id].mutex));
     }
+     printf("dei lock\n");
     //TESTAR MUTEX E TENTAR ACEDER
 
 
@@ -116,10 +119,13 @@ struct tlv_reply transferMoney(struct tlv_request request) {
 
     if (request.value.header.account_id != 0) {
         if (request.value.header.account_id != request.value.transfer.account_id) {
-
+             printf("1 \n");
             if (usedIds[request.value.transfer.account_id] != 0) {
+                printf("2 \n");
                 if (accounts[request.value.header.account_id].bank.balance - request.value.transfer.amount > MIN_BALANCE) {
-                    if (accounts[request.value.transfer.account_id].bank.balance + request.value.transfer.amount > MAX_BALANCE) {
+                    printf("3 \n");
+                    if (accounts[request.value.transfer.account_id].bank.balance + request.value.transfer.amount < MAX_BALANCE) {
+                         printf("tudo suss \n");
                         accounts[request.value.transfer.account_id].bank.balance += request.value.transfer.amount;
                         accounts[request.value.header.account_id].bank.balance -= request.value.transfer.amount;
                         resp.ret_code = RC_OK;
@@ -150,6 +156,9 @@ struct tlv_reply transferMoney(struct tlv_request request) {
     //RESETAR MUTEX
     pthread_mutex_unlock(&(accounts[request.value.transfer.account_id].mutex));
     pthread_mutex_unlock(&(accounts[request.value.header.account_id].mutex));
+     printf("dei unlock\n");
+
+     printf("%d\n",accounts[request.value.transfer.account_id].bank.balance);
 
     reply.length = sizeof(resp_val);
     return reply;

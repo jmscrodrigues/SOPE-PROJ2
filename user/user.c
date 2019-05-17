@@ -93,10 +93,13 @@ int main(int argc, char* argv[]) {
     }
 
     fd = open(response_fifo, O_RDONLY);
+    printf("1\n");
     
     tlv_reply_t tlv_reply;
     if (read(fd, &tlv_reply,sizeof(tlv_reply)) > 0)//lê mensagens tlv
         logReply(STDOUT_FILENO,getpid(), &tlv_reply);
+
+    printf("2\n");
 
     close(fd);
     unlink(response_fifo);
