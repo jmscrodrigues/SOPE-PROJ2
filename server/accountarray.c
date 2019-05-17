@@ -37,21 +37,23 @@ struct tlv_reply addAccount(struct tlv_request request) {
                     if (strlen(request.value.create.password) > MIN_PASSWORD_LEN) {
                         if (strlen(request.value.create.password) < MAX_PASSWORD_LEN) {
 
-                            struct bank_account acc;
-                            acc.account_id = request.value.create.account_id;
-                            acc.balance = request.value.create.balance;
+                            struct account_mut acc;
+                            acc.bank.account_id = request.value.create.account_id;
+                            acc.bank.balance = request.value.create.balance;
+                            printf("\nthe real balance: %d\n", acc.bank.balance);
                             //Salt bae
                             char salt[SALT_LEN];
                             generateSalt(salt);
-                            strcpy(acc.salt,salt);
+                            strcpy(acc.bank.salt,salt);
                             //Hash bae
                             char hash[HASH_LEN];
                             generateHash(request.value.create.password, salt, hash,request.value.create.account_id);
-                            strcpy(acc.hash,hash);
-                            accounts[request.value.create.account_id].bank = acc;
+                            strcpy(acc.bank.hash,hash);
                             pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-                            accounts[request.value.create.account_id].mutex =  mutex;
+                            acc.mutex =  mutex;
                             usedIds[request.value.create.account_id] = true;
+                            accounts[request.value.header.account_id] = acc;
+                            printf("OU VAI OU RACHA CRL: %d\n",accounts[request.value.header.account_id].bank.balance);
                             resp.ret_code = RC_OK;
 
                             printf("\nid conta: %d\n", accounts[request.value.create.account_id].bank.account_id);
@@ -89,6 +91,8 @@ struct tlv_reply addAccount(struct tlv_request request) {
     resp_val.header = resp;
     reply.value = resp_val;
     reply.length = sizeof(resp_val);
+
+    printf("BALANCE: %d", accounts[request.value.header.account_id].bank.balance);
     return reply;
 }
 
