@@ -71,9 +71,6 @@ int main(int argc, char* argv[]) {
     tlv_req.value = req_value;
     //------------------
 
-    printf("%d %d %d %s\n",tlv_req.value.header.account_id,tlv_req.value.create.balance,tlv_req.value.create.account_id, tlv_req.value.create.password);
-
-
 
     int fd = open(SERVER_FIFO_PATH, O_WRONLY );
 

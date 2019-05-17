@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 
     queue = createQueue(100);
 
-//CHAMAR FUNCAO DE CRIAÇÃO DE CONTA DO ADMIN
+
 
     pthread_t t_ids[num_threads];
     int i;
@@ -60,8 +60,8 @@ int main(int argc, char* argv[]) {
         }
         else logBankOfficeOpen(STDOUT_FILENO, i, t_ids[i]);
     }
-//CREATE ADMIN
-creatAdmin(argv[2]);
+//CHAMAR FUNCAO DE CRIAÇÃO DE CONTA DO ADMIN
+    creatAdmin(argv[2]);
 
 //FIFO QUE RECEBE OS REQUESTS
     if(mkfifo(SERVER_FIFO_PATH, 0660) != 0) {
@@ -82,7 +82,7 @@ creatAdmin(argv[2]);
             continue;
 
         enqueue(queue,tlv_req);
-        //logRequest(STDOUT_FILENO,getpid(),&tlv_req);
+        logRequest(STDOUT_FILENO,getpid(),&tlv_req);
     }
     close(fd);
 
@@ -121,7 +121,6 @@ void requestHandler( tlv_request_t request, int threadNo) {
 
 void * threadInit(void * args) {
     int threadNo = * (int *) args;
-    printf("\nthread %d\n",threadNo);
     while(true) { //mudar para condição de fecho do server
 
         pthread_mutex_lock(&queue_mutex);
@@ -129,19 +128,17 @@ void * threadInit(void * args) {
         while (isEmpty(queue)) {
             sleep(0.5);
         }
-        printf("1\n");
+
         workingThreads[threadNo] = true;
 
         //VAI BUSCAR A QUEUE
         struct tlv_request request;
         request = requestFromQueue();
-        printf("%d %d %d\n",request.value.header.account_id,request.value.create.balance,request.value.create.account_id);
-        printf("2\n");
+
         //TIRA O LOCK DA QUEUE
         pthread_mutex_unlock(&queue_mutex);
 
         requestHandler(request, threadNo);
-        printf("3\n");
     }
 }
 
@@ -169,11 +166,10 @@ struct tlv_reply requestParser(struct tlv_request request) {
 }
 
 struct tlv_request requestFromQueue() {
-    struct tlv_request * request;
+    tlv_request_t request;
     request = dequeue(queue);
-    //logRequest(STDOUT_FILENO, getpid(),request);
-     printf("%d %d %d\n",request->value.header.account_id,request->value.create.balance,request->value.create.account_id);
-    return *(request);  // espero que esteja correto
+    logRequest(STDOUT_FILENO, getpid(),&request);
+    return request;  // espero que esteja correto
 }
 
 

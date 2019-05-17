@@ -45,38 +45,31 @@ void enqueue(struct Queue* queue, struct tlv_request item)
 
 // Function to remove an item from queue.
 // It changes front and size
-struct tlv_request * dequeue(struct Queue* queue)
+struct tlv_request dequeue(struct Queue* queue)
 {
-    if (isEmpty(queue))
-        return NULL;
     struct tlv_request item = queue->array[queue->front];
     queue->front = (queue->front + 1)%queue->capacity;
     queue->size = queue->size - 1;
-    struct tlv_request *item_ret = &item;
-    return item_ret;
+
+    return item;
 }
 
 // Function to get front of queue
-struct tlv_request * front(struct Queue* queue)
+struct tlv_request  front(struct Queue* queue)
 {
-    if (isEmpty(queue))
-        return NULL;
-    else  {
-      struct tlv_request * item_ret;
-      item_ret = &queue->array[queue->front];
+      struct tlv_request  item_ret;
+      item_ret = queue->array[queue->front];
       return item_ret;
-    }
+    
 }
 
 // Function to get rear of queue
-struct tlv_request * rear(struct Queue* queue)
+struct tlv_request rear(struct Queue* queue)
 {
-    if (isEmpty(queue))
-        return NULL;
-    else {
-      struct tlv_request * item_ret;
-      item_ret = &queue->array[queue->rear];
+
+      struct tlv_request  item_ret;
+      item_ret = queue->array[queue->rear];
       return item_ret;
-    }
+
 
 }

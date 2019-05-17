@@ -40,7 +40,7 @@ struct tlv_reply addAccount(struct tlv_request request) {
                 if (request.value.create.balance <= MAX_BALANCE) {
                     if (strlen(request.value.create.password) > MIN_PASSWORD_LEN) {
                         if (strlen(request.value.create.password) < MAX_PASSWORD_LEN) {
-                            usedIds[request.value.create.account_id] = true;
+
                             struct bank_account acc;
                             acc.account_id = request.value.create.account_id;
                             acc.balance = request.value.create.balance;
@@ -55,6 +55,7 @@ struct tlv_reply addAccount(struct tlv_request request) {
                             accounts[request.value.create.account_id].bank = acc;
                             pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
                             accounts[request.value.create.account_id].mutex =  mutex;
+                            usedIds[request.value.create.account_id] = true;
                             resp.ret_code = RC_OK;
                             /*size = sizeof(resp_val);
                             reply.length = size;
