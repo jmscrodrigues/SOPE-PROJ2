@@ -39,6 +39,9 @@ int main(int argc, char* argv[]) {
 
     int num_threads = atoi(argv[1]);
     threadNumber = num_threads;
+    struct account_mut * acc = malloc(MAX_BANK_ACCOUNTS * sizeof(struct account_mut));
+
+    setAccountsArray(acc);
 
     char * password = argv[2];
     if (strlen(password) > MAX_PASSWORD_LEN || strlen(password) < MIN_PASSWORD_LEN) {

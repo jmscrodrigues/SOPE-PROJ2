@@ -1,7 +1,11 @@
 #include "accountarray.h"
 
-static struct account_mut accounts[MAX_BANK_ACCOUNTS+1];
+struct account_mut * accounts;
 static bool usedIds[MAX_BANK_ACCOUNTS+1] = {0};
+
+void setAccountsArray(struct account_mut * acc) {
+  accounts = acc;
+}
 
 void creatAdmin(char * pass) {
     bank_account_t admin;
@@ -39,6 +43,7 @@ struct tlv_reply addAccount(struct tlv_request request) {
 
                             struct account_mut acc;
                             acc.bank.account_id = request.value.create.account_id;
+                            printf("ID A CRIAR: %d\n", acc.bank.account_id);
                             acc.bank.balance = request.value.create.balance;
                             printf("\nthe real balance: %d\n", acc.bank.balance);
                             //Salt bae
@@ -52,8 +57,9 @@ struct tlv_reply addAccount(struct tlv_request request) {
                             pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
                             acc.mutex =  mutex;
                             usedIds[request.value.create.account_id] = true;
-                            accounts[request.value.header.account_id] = acc;
-                            printf("OU VAI OU RACHA CRL: %d\n",accounts[request.value.header.account_id].bank.balance);
+                            accounts[request.value.create.account_id] = acc;
+                            printf("OU VAI OU RACHA CRL: %d\n",accounts[request.value.create.account_id].bank.balance);
+                            printf("ID? %d", accounts[request.value.create.account_id].bank.account_id);
                             resp.ret_code = RC_OK;
 
                             printf("\nid conta: %d\n", accounts[request.value.create.account_id].bank.account_id);

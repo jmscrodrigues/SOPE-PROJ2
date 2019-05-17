@@ -17,3 +17,4 @@ void generateHash(char pass[MAX_PASSWORD_LEN], char salt[SALT_LEN], char hash[HA
 void getExternalCommand(char* outPutStr, char* commands[]);
 void generateSalt(char salt[SALT_LEN]);
 void creatAdmin(char * pass);
+void setAccountsArray(struct account_mut * acc);
