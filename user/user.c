@@ -71,15 +71,14 @@ int main(int argc, char* argv[]) {
     tlv_req.value = req_value;
     //------------------
 
-
+    int ulog = open(USER_LOGFILE, O_RDWR| O_APPEND | O_CREAT, 0666);
     int fd = open(SERVER_FIFO_PATH, O_WRONLY );
 
     write(fd,&tlv_req, sizeof(tlv_req)); //mandar mensagem tlv
     close(fd);
-    logRequest(STDOUT_FILENO,getpid(),&tlv_req);
+    logRequest(ulog,getpid(),&tlv_req);
 
-
-  char response_fifo[USER_FIFO_PATH_LEN];
+    char response_fifo[USER_FIFO_PATH_LEN];
     sprintf(response_fifo, "%s%d", USER_FIFO_PATH_PREFIX, getpid());
 
     if(mkfifo(response_fifo, 0660) != 0) {
@@ -87,14 +86,7 @@ int main(int argc, char* argv[]) {
         return -5;
     }
 
-
     fd = open(response_fifo, O_RDONLY | O_NONBLOCK);
-
-    if(fd < 0) {
-        printf("es feio\n");
-    } else {
-        printf("es feio2\n");
-    }
 
     tlv_reply_t tlv_reply;
 
@@ -102,7 +94,7 @@ int main(int argc, char* argv[]) {
     while(time) {
 
         if (read(fd, &tlv_reply,sizeof(tlv_reply)) > 0) { //lê mensagens tlv
-            logReply(STDOUT_FILENO,getpid(), &tlv_reply);
+            logReply(ulog,getpid(), &tlv_reply);
             close(fd);
             unlink(response_fifo);
             return 0;
@@ -122,6 +114,7 @@ int main(int argc, char* argv[]) {
     logReply(STDOUT_FILENO,getpid(),&tlv_reply);
 
     close(fd);
+    close(ulog);
     unlink(response_fifo);
 
     return 0;

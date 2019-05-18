@@ -11,25 +11,27 @@
 #include "accountarray.h"
 #include "sope.h"
 
+
 static pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 static struct Queue * queue;
 static bool workingThreads[MAX_BANK_OFFICES] = {0};
 static int threadNumber;
 
+int slog_fd;
+
 void * threadInit(void * args);
 bool existingActiveThread();
-struct tlv_reply requestParser(struct tlv_request request);
+struct tlv_reply requestParser(struct tlv_request request, int threadNo);
 struct tlv_request requestFromQueue();
 struct tlv_reply closeServer(struct tlv_request request);
 bool checkPassword(struct tlv_request req);
 
-
-
 int main(int argc, char* argv[]) {
 
     time_t t;
-
     srand((unsigned) time(&t));
+
+    slog_fd = open(SERVER_LOGFILE, O_RDWR |O_CREAT |O_TRUNC|O_APPEND, 0666);
 
     if (argc != 3) {
         printf("Wrong number of arguments\n");
@@ -54,14 +56,14 @@ int main(int argc, char* argv[]) {
     int i;
     int *in = malloc(sizeof(int));
     for(i = 0; i < num_threads; i++) {
-        
+
         *in = i;
         if(pthread_create(&(t_ids[i]), NULL, threadInit, in) != 0) {
             fprintf(stderr, "Error creating thread %d\n", i);
         }
-        else logBankOfficeOpen(STDOUT_FILENO, i, t_ids[i]);
+        else logBankOfficeOpen(slog_fd, i, t_ids[i]);
     }
-    
+
 //CHAMAR FUNCAO DE CRIAÇÃO DE CONTA DO ADMIN
     creatAdmin(argv[2]);
 
@@ -84,7 +86,7 @@ int main(int argc, char* argv[]) {
             continue;
 
         enqueue(queue,tlv_req);
-        logRequest(STDOUT_FILENO,tlv_req.value.header.pid,&tlv_req);
+        logRequest(slog_fd,tlv_req.value.header.pid,&tlv_req);
     }
     close(fd);
 
@@ -100,7 +102,7 @@ void requestHandler( tlv_request_t request, int threadNo) {
 
     //ELABORA A RESPOSTA DA QUEUE
     struct tlv_reply answer;
-    answer = requestParser(request);
+    answer = requestParser(request, threadNo);
     // codigo para abrir o fifo de resposta
 
     //CRIA O FIFO DE RESPOSTA
@@ -108,7 +110,7 @@ void requestHandler( tlv_request_t request, int threadNo) {
     sprintf(response_fifo, "%s%d", USER_FIFO_PATH_PREFIX,request.value.header.pid);
 
     //ABRE FIFO, ESCREVE E FECHA
-    printf("DEBUG: %s\n",response_fifo);
+    // printf("DEBUG: %s\n",response_fifo);
 
     int fd = open(response_fifo, O_WRONLY);
     int attempts = 0;
@@ -120,7 +122,7 @@ void requestHandler( tlv_request_t request, int threadNo) {
 
     write(fd,&answer, sizeof(answer));
     close(fd);
-    logReply(STDOUT_FILENO,threadNo, &answer);
+    logReply(slog_fd,threadNo, &answer);
     workingThreads[threadNo] = false;
 }
 
@@ -147,19 +149,19 @@ void * threadInit(void * args) {
     }
 }
 
-struct tlv_reply requestParser(struct tlv_request request) {
+struct tlv_reply requestParser(struct tlv_request request, int threadNo) {
 
     switch(request.type) {
     case OP_CREATE_ACCOUNT:
-        return addAccount(request);
+        return addAccount(request, threadNo);
         break;
 
     case OP_BALANCE:
-        return balanceCheck(request);
+        return balanceCheck(request, threadNo);
         break;
 
     case OP_TRANSFER:
-        return transferMoney(request);
+        return transferMoney(request, threadNo);
         break;
 
     case OP_SHUTDOWN:
@@ -174,7 +176,7 @@ struct tlv_reply requestParser(struct tlv_request request) {
 struct tlv_request requestFromQueue() {
     tlv_request_t request;
     request = dequeue(queue);
-    logRequest(STDOUT_FILENO, request.value.header.pid,&request);
+    logRequest(slog_fd, request.value.header.pid,&request);
     return request;  // espero que esteja correto
 }
 

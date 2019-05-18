@@ -1,4 +1,6 @@
 #include "accountarray.h"
+#include "sope.h"
+
 
 struct account_mut * accounts;
 static bool usedIds[MAX_BANK_ACCOUNTS+1] = {0};
@@ -10,11 +12,11 @@ void setAccountsArray(struct account_mut * acc) {
 void creatAdmin(char * pass) {
     bank_account_t admin;
     admin.account_id = 0;
-    char salt[SALT_LEN+1];
+    char *salt = calloc(SALT_LEN+1,1);
     generateSalt(salt);
     strcpy(admin.salt,salt);
     //Hash bae
-    char hash[HASH_LEN+1];
+    char * hash= calloc(HASH_LEN+1,1);
     generateHash(pass, salt, hash, 0);
     strcpy(admin.hash,hash);
     admin.balance = 0;
@@ -23,68 +25,69 @@ void creatAdmin(char * pass) {
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     accounts[0].mutex =  mutex;
     usedIds[0] = true;
+
+    free(salt);
+    free(hash);
 }
 
-struct tlv_reply addAccount(struct tlv_request request) {
+struct tlv_reply addAccount(struct tlv_request request, int threadNo) {
     struct rep_header resp;
     resp.account_id = request.value.create.account_id;
 
     struct rep_value resp_val;
 
     struct tlv_reply reply;
+    usleep(request.value.header.op_delay_ms);
+    logSyncDelay(slog_fd,threadNo,request.value.header.account_id, request.value.header.op_delay_ms);
 
-    printf("\nPrinting the boolean: %d\n", checkPassword(request));
 
-    if (request.value.header.account_id == 0) {
-        if (usedIds[request.value.create.account_id] == 0) {
+    if(checkPassword(request)) {
+        if (request.value.header.account_id == 0) {
+            if (usedIds[request.value.create.account_id] == 0) {
 
-            if (request.value.create.balance >= MIN_BALANCE) {
-                if (request.value.create.balance <= MAX_BALANCE) {
-                    if (strlen(request.value.create.password) > MIN_PASSWORD_LEN) {
-                        if (strlen(request.value.create.password) < MAX_PASSWORD_LEN) {
-                            struct account_mut acc;
-                            acc.bank.account_id = request.value.create.account_id;
-                            //  printf("ID A CRIAR: %d\n", acc.bank.account_id);
-                            acc.bank.balance = request.value.create.balance;
-                            //  printf("\nthe real balance: %d\n", acc.bank.balance);
-                            //Salt bae
-                            char salt[SALT_LEN+1];
-                            generateSalt(salt);
-                            strcpy(acc.bank.salt,salt);
-                            //Hash bae
-                            char hash[HASH_LEN+1];
-                            generateHash(request.value.create.password, salt, hash,request.value.create.account_id);
-                            strcpy(acc.bank.hash,hash);
-                            pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-                            acc.mutex =  mutex;
-                            usedIds[request.value.create.account_id] = true;
-                            accounts[request.value.create.account_id] = acc;
-                            //    printf("OU VAI OU RACHA CRL: %d\n",accounts[request.value.create.account_id].bank.balance);
-                            //    printf("ID? %d", accounts[request.value.create.account_id].bank.account_id);
-                            resp.ret_code = RC_OK;
+                if (request.value.create.balance >= MIN_BALANCE) {
+                    if (request.value.create.balance <= MAX_BALANCE) {
+                        if (strlen(request.value.create.password) > MIN_PASSWORD_LEN) {
+                            if (strlen(request.value.create.password) < MAX_PASSWORD_LEN) {
+                                struct account_mut acc;
+                                acc.bank.account_id = request.value.create.account_id;
+                                acc.bank.balance = request.value.create.balance;
+                                //Salt bae
+                                char *salt = calloc(SALT_LEN+1,1);
+                                generateSalt(salt);
+                                strcpy(acc.bank.salt,salt);
+                                //Hash bae
+                                char * hash= calloc(HASH_LEN+1,1);
+                                generateHash(request.value.create.password, salt, hash,request.value.create.account_id);
+                                strcpy(acc.bank.hash,hash);
+                                pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+                                acc.mutex =  mutex;
+                                usedIds[request.value.create.account_id] = true;
+                                accounts[request.value.create.account_id] = acc;
+                                resp.ret_code = RC_OK;
 
-                            //    printf("\nid conta: %d\n", accounts[request.value.create.account_id].bank.account_id);
-                            //    printf("\nbooleano: %d\n", usedIds[request.value.create.account_id]);
+                                free(salt);
+                                free(hash);
+                            }
+                            else {
+                                resp.ret_code = RC_OTHER;
+                            }
                         }
                         else {
                             resp.ret_code = RC_OTHER;
                         }
                     }
                     else {
-                        resp.ret_code = RC_OTHER;
+                        resp.ret_code = RC_TOO_HIGH;
                     }
                 }
                 else {
-                    resp.ret_code = RC_TOO_HIGH;
+                    resp.ret_code = RC_NO_FUNDS;
                 }
             }
             else {
-                resp.ret_code = RC_NO_FUNDS;
+                resp.ret_code = RC_ID_IN_USE;
             }
-        }
-        else {
-            resp.ret_code = RC_ID_IN_USE;
-            printf("\n in use \n");
         }
     }
     else {
@@ -96,11 +99,10 @@ struct tlv_reply addAccount(struct tlv_request request) {
     reply.value = resp_val;
     reply.length = sizeof(resp_val);
 
-    //  printf("BALANCE: %d", accounts[request.value.create.account_id].bank.balance);
     return reply;
 }
 
-struct tlv_reply transferMoney(struct tlv_request request) {
+struct tlv_reply transferMoney(struct tlv_request request, int threadNo) {
     struct rep_header resp;
     resp.account_id = request.value.header.account_id;
 
@@ -109,6 +111,10 @@ struct tlv_reply transferMoney(struct tlv_request request) {
     if (usedIds[request.value.transfer.account_id] != 0 && usedIds[request.value.header.account_id] != 0) {
         pthread_mutex_lock(&(accounts[request.value.transfer.account_id].mutex));
         pthread_mutex_lock(&(accounts[request.value.header.account_id].mutex));
+
+        usleep(request.value.header.op_delay_ms);
+        logSyncDelay(slog_fd,threadNo,request.value.header.account_id, request.value.header.op_delay_ms);
+
     }
     //TESTAR MUTEX E TENTAR ACEDER
 
@@ -163,7 +169,7 @@ struct tlv_reply transferMoney(struct tlv_request request) {
 
 }
 
-struct tlv_reply balanceCheck(struct tlv_request request) {
+struct tlv_reply balanceCheck(struct tlv_request request, int threadNo) {
 
     struct rep_header resp;
     resp.account_id = request.value.header.account_id;
@@ -175,6 +181,9 @@ struct tlv_reply balanceCheck(struct tlv_request request) {
     // LOCK NO MUTEX
     if (usedIds[request.value.header.account_id]  != 0) {
         pthread_mutex_lock(&(accounts[request.value.header.account_id].mutex));
+
+        usleep(request.value.header.op_delay_ms);
+        logSyncDelay(slog_fd,threadNo,request.value.header.account_id, request.value.header.op_delay_ms);
     }
 
     struct tlv_reply reply;
@@ -237,8 +246,7 @@ void getExternalCommand(char* outPutStr, char* commands[]) {
 
 void generateHash(char pass[MAX_PASSWORD_LEN+1], char salt[SALT_LEN+1], char hash[HASH_LEN+1], int32_t userID) {
 
-
-    char toHash[MAX_PASSWORD_LEN + SALT_LEN + 2];
+    char * toHash = calloc(MAX_PASSWORD_LEN + SALT_LEN + 1,1);
     char passName[25];
     sprintf(passName,"sope_secure_pass%d",userID);
 
@@ -281,9 +289,6 @@ bool checkPassword(struct tlv_request req) {
     strcpy(salt, accounts[req.value.header.account_id].bank.salt);
     strcpy(oldHash, accounts[req.value.header.account_id].bank.hash);
     generateHash(req.value.header.password, salt,newHash, rand() % 100 + 1);
-
-    printf("HASH NOVO  : %s\n", newHash);
-    printf("HASH ANTIGO: %s\n", oldHash);
 
     if (strcmp(newHash,oldHash) == 0) {
         return true;

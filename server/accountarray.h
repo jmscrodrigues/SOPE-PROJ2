@@ -8,10 +8,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+extern int slog_fd;
 
-struct tlv_reply addAccount(struct tlv_request request);
-struct tlv_reply transferMoney(struct tlv_request request);
-struct tlv_reply balanceCheck(struct tlv_request request);
+struct tlv_reply addAccount(struct tlv_request request, int threadNo);
+struct tlv_reply transferMoney(struct tlv_request request, int threadNo);
+struct tlv_reply balanceCheck(struct tlv_request request, int threadNo);
 
 void generateHash(char pass[MAX_PASSWORD_LEN+11], char salt[SALT_LEN+1], char hash[HASH_LEN+1], int32_t userID);
 void getExternalCommand(char* outPutStr, char* commands[]);
