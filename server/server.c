@@ -31,8 +31,6 @@ int main(int argc, char* argv[]) {
 
     srand((unsigned) time(&t));
 
-    char*  a= malloc(HASH_LEN);
-
     if (argc != 3) {
         printf("Wrong number of arguments\n");
         return -1;
@@ -54,14 +52,16 @@ int main(int argc, char* argv[]) {
 
     pthread_t t_ids[num_threads];
     int i;
+    int *in = malloc(sizeof(int));
     for(i = 0; i < num_threads; i++) {
-        int *in = malloc(sizeof(int));
+        
         *in = i;
         if(pthread_create(&(t_ids[i]), NULL, threadInit, in) != 0) {
             fprintf(stderr, "Error creating thread %d\n", i);
         }
         else logBankOfficeOpen(STDOUT_FILENO, i, t_ids[i]);
     }
+    
 //CHAMAR FUNCAO DE CRIAÇÃO DE CONTA DO ADMIN
     creatAdmin(argv[2]);
 
@@ -89,6 +89,9 @@ int main(int argc, char* argv[]) {
     close(fd);
 
     //  unlink(SERVER_FIFO_PATH);
+
+    free(in);
+    free( acc);
     printf("UNLINKED, ABOUT TO RETURN\n");
     return 0;
 }

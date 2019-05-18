@@ -13,7 +13,7 @@ struct tlv_reply addAccount(struct tlv_request request);
 struct tlv_reply transferMoney(struct tlv_request request);
 struct tlv_reply balanceCheck(struct tlv_request request);
 
-void generateHash(char pass[MAX_PASSWORD_LEN], char salt[SALT_LEN], char hash[HASH_LEN], int32_t userID);
+void generateHash(char pass[MAX_PASSWORD_LEN+11], char salt[SALT_LEN+1], char hash[HASH_LEN+1], int32_t userID);
 void getExternalCommand(char* outPutStr, char* commands[]);
 void generateSalt(char salt[SALT_LEN]);
 void creatAdmin(char * pass);
