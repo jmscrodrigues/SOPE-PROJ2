@@ -16,6 +16,7 @@ static pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 static struct Queue * queue;
 static bool workingThreads[MAX_BANK_OFFICES] = {0};
 static int threadNumber;
+static bool serverUp = true;
 
 int slog_fd;
 
@@ -31,7 +32,7 @@ int main(int argc, char* argv[]) {
     time_t t;
     srand((unsigned) time(&t));
 
-    slog_fd = open(SERVER_LOGFILE, O_RDWR |O_CREAT |O_TRUNC|O_APPEND, 0666);
+    slog_fd =STDOUT_FILENO;// open(SERVER_LOGFILE, O_RDWR |O_CREAT |O_TRUNC|O_APPEND, 0666);
 
     if (argc != 3) {
         printf("Wrong number of arguments\n");
@@ -80,7 +81,7 @@ int main(int argc, char* argv[]) {
         return -4;
     }
     tlv_request_t tlv_req;
-    while(true) { // mudar este true para condição de encerramento do server
+    while(serverUp) {
 
         if (read(fd,&tlv_req,sizeof(tlv_request_t)) <= 0)
             continue;
@@ -88,9 +89,21 @@ int main(int argc, char* argv[]) {
         enqueue(queue,tlv_req);
         logRequest(slog_fd,tlv_req.value.header.pid,&tlv_req);
     }
+    printf("yoyo\n");
+
     close(fd);
 
-    //  unlink(SERVER_FIFO_PATH);
+    printf("yoyo\n");
+
+    for(i = 0; i < num_threads; i++) {
+        *in = i;
+        if(pthread_join(t_ids[i],NULL) != 0) {
+            fprintf(stderr, "Error joining thread %d\n", i);
+        }
+        else logBankOfficeClose(slog_fd, i, t_ids[i]);
+    }
+
+    printf("eyey\n");
 
     free(in);
     free( acc);
@@ -103,14 +116,12 @@ void requestHandler( tlv_request_t request, int threadNo) {
     //ELABORA A RESPOSTA DA QUEUE
     struct tlv_reply answer;
     answer = requestParser(request, threadNo);
-    // codigo para abrir o fifo de resposta
 
     //CRIA O FIFO DE RESPOSTA
     char response_fifo[USER_FIFO_PATH_LEN];
     sprintf(response_fifo, "%s%d", USER_FIFO_PATH_PREFIX,request.value.header.pid);
 
     //ABRE FIFO, ESCREVE E FECHA
-    // printf("DEBUG: %s\n",response_fifo);
 
     int fd = open(response_fifo, O_WRONLY);
     int attempts = 0;
@@ -128,7 +139,7 @@ void requestHandler( tlv_request_t request, int threadNo) {
 
 void * threadInit(void * args) {
     int threadNo = * (int *) args;
-    while(true) { //mudar para condição de fecho do server
+    while(serverUp) { //mudar para condição de fecho do server
 
         pthread_mutex_lock(&queue_mutex);
 
@@ -203,9 +214,10 @@ struct tlv_reply closeServer(struct tlv_request request) {
     reply.value = resp_val;
     reply.type = OP_SHUTDOWN;
 
-    uint32_t size;
-
-    if (request.value.header.account_id != 0) {
+    if (request.value.header.account_id == 0) {
+        printf("\n%d\n", serverUp);
+        serverUp = false;
+        printf("\n%d\n", serverUp);
         while (!existingActiveThread()) {
         }
         resp.ret_code = RC_OK;
@@ -221,7 +233,7 @@ struct tlv_reply closeServer(struct tlv_request request) {
 
 bool existingActiveThread() {
     for (unsigned int i = 0; i < threadNumber; i++) {
-        if (workingThreads) {
+        if (workingThreads[i]) {
             return false;
         }
     }

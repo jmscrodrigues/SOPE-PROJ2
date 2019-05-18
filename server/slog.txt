@@ -1,0 +1,15 @@
+I - 00000 - OPEN  140602228090624
+I - 00001 - OPEN  140602219697920
+I - 00002 - OPEN  140602211305216
+I - 00003 - OPEN  140602202912512
+R - 21123 - [ 62 bytes] 21123 (0000, "ababababab")           [    3 ms] CREATE   0002        100€ "1212121212"
+R - 21123 - [ 62 bytes] 21123 (0000, "ababababab")           [    3 ms] CREATE   0002        100€ "1212121212"
+A - 00001 - A00000 [    3 ms]
+E - 00001 - [ 12 bytes] 0002   CREATE           OK
+R - 21133 - [ 62 bytes] 21133 (0002, "1212121212")           [    5 ms] BALANCE 
+R - 21133 - [ 62 bytes] 21133 (0002, "1212121212")           [    5 ms] BALANCE 
+A - 00002 - A00002 [    5 ms]
+E - 00002 - [ 12 bytes] 0002  BALANCE           OK        100€
+R - 21142 - [ 62 bytes] 21142 (0000, "ababababab")           [    3 ms] SHUTDOWN
+R - 21142 - [ 62 bytes] 21142 (0000, "ababababab")           [    3 ms] SHUTDOWN
+E - 00003 - [ 12 bytes] 0000 SHUTDOWN           OK 0

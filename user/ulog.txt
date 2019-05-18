@@ -1,0 +1,1 @@
+E - 21896 - [ 62 bytes] 21896 (0000, "ababababab")           [    3 ms] SHUTDOWN
