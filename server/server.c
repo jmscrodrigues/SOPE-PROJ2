@@ -21,10 +21,10 @@ static bool serverUp = true;
 int slog_fd;
 
 void * threadInit(void * args);
-bool existingActiveThread();
+bool existingActiveThread(int threadNo);
 struct tlv_reply requestParser(struct tlv_request request, int threadNo);
 struct tlv_request requestFromQueue();
-struct tlv_reply closeServer(struct tlv_request request);
+struct tlv_reply closeServer(struct tlv_request request, int threadNo);
 bool checkPassword(struct tlv_request req);
 
 int main(int argc, char* argv[]) {
@@ -95,18 +95,19 @@ int main(int argc, char* argv[]) {
 
     printf("yoyo\n");
 
-    for(i = 0; i < num_threads; i++) {
-        *in = i;
+    for(i =0; i < num_threads; i++) {
+      printf("thread: %d\n", i);
+        /**in = i;
         if(pthread_join(t_ids[i],NULL) != 0) {
             fprintf(stderr, "Error joining thread %d\n", i);
         }
-        else logBankOfficeClose(slog_fd, i, t_ids[i]);
+        else logBankOfficeClose(slog_fd, i, t_ids[i]);*/
+        logBankOfficeClose(slog_fd, i, t_ids[i]);
+        pthread_cancel(t_ids[i]);
     }
 
-    printf("eyey\n");
-
     free(in);
-    free( acc);
+    free(acc);
     printf("UNLINKED, ABOUT TO RETURN\n");
     return 0;
 }
@@ -176,7 +177,7 @@ struct tlv_reply requestParser(struct tlv_request request, int threadNo) {
         break;
 
     case OP_SHUTDOWN:
-        return closeServer(request);
+        return closeServer(request, threadNo);
         break;
 
     default:
@@ -192,7 +193,7 @@ struct tlv_request requestFromQueue() {
 }
 
 
-struct tlv_reply closeServer(struct tlv_request request) {
+struct tlv_reply closeServer(struct tlv_request request, int threadNo) {
     struct rep_header resp;
     resp.account_id = request.value.header.account_id;
 
@@ -218,7 +219,7 @@ struct tlv_reply closeServer(struct tlv_request request) {
         printf("\n%d\n", serverUp);
         serverUp = false;
         printf("\n%d\n", serverUp);
-        while (!existingActiveThread()) {
+        while (!existingActiveThread(threadNo)) {
         }
         resp.ret_code = RC_OK;
     }
@@ -231,11 +232,13 @@ struct tlv_reply closeServer(struct tlv_request request) {
 
 }
 
-bool existingActiveThread() {
+bool existingActiveThread(int threadNo) {
     for (unsigned int i = 0; i < threadNumber; i++) {
+      if (i != threadNo) {
         if (workingThreads[i]) {
             return false;
         }
-    }
-    return true;
+      }
+  }
+  return true;
 }
