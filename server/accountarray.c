@@ -15,7 +15,7 @@ void creatAdmin(char * pass) {
     char *salt = calloc(SALT_LEN+1,1);
     generateSalt(salt);
     strcpy(admin.salt,salt);
-    //Hash bae
+    //Hash
     char * hash= calloc(HASH_LEN+1,1);
     generateHash(pass, salt, hash, 0);
     strcpy(admin.hash,hash);
@@ -51,11 +51,11 @@ struct tlv_reply addAccount(struct tlv_request request, int threadNo) {
                                 struct account_mut acc;
                                 acc.bank.account_id = request.value.create.account_id;
                                 acc.bank.balance = request.value.create.balance;
-                                //Salt bae
+                                //Salt
                                 char *salt = calloc(SALT_LEN+1,1);
                                 generateSalt(salt);
                                 strcpy(acc.bank.salt,salt);
-                                //Hash bae
+                                //Hash
                                 char * hash= calloc(HASH_LEN+1,1);
                                 generateHash(request.value.create.password, salt, hash,request.value.create.account_id);
                                 strcpy(acc.bank.hash,hash);
@@ -115,7 +115,6 @@ struct tlv_reply transferMoney(struct tlv_request request, int threadNo) {
         logSyncDelay(slog_fd,threadNo,request.value.header.account_id, request.value.header.op_delay_ms);
 
     }
-    //TESTAR MUTEX E TENTAR ACEDER
 
     struct rep_transfer transf;
 
