@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <types.h>
+#include "types.h"
 #include "sope.h"
 
 void argumentParser(char argv5[],  char ret[3][MAX_PASSWORD_LEN]);

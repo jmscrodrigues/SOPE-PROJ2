@@ -120,8 +120,6 @@ struct tlv_reply transferMoney(struct tlv_request request, int threadNo) {
 
     struct tlv_reply reply;
 
-    uint32_t size;
-
     if(checkPassword(request)) {
         if (request.value.header.account_id != 0) {
             if (request.value.header.account_id != request.value.transfer.account_id) {
@@ -264,7 +262,6 @@ void generateHash(char pass[MAX_PASSWORD_LEN+1], char salt[SALT_LEN+1], char has
 
     char* commands[] = {"sha256sum",passName,0};
 
-    char t_hash[HASH_LEN];
     getExternalCommand(hash,commands);
 
     remove(passName);
@@ -272,7 +269,6 @@ void generateHash(char pass[MAX_PASSWORD_LEN+1], char salt[SALT_LEN+1], char has
 
 void generateSalt(char salt[SALT_LEN+1]) {
     const char *hex_digits = "0123456789abcdef";
-    char t_salt[SALT_LEN+1]= {0};
 
     for( int i = 0 ; i < SALT_LEN; i++ ) {
         salt[i] = hex_digits[ ( rand() % 16 ) ];

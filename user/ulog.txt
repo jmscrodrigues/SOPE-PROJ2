@@ -1,2 +1,0 @@
-E - 03480 - [ 62 bytes] 03480 (0000, "12345678")             [   10 ms] SHUTDOWN
-R - 03480 - [ 12 bytes] 0000 SHUTDOWN           OK 0

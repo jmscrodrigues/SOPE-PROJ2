@@ -25,7 +25,7 @@ struct Queue* createQueue(unsigned capacity)
 
 // Queue is full when size becomes equal to the capacity
 int isFull(struct Queue* queue)
-{  return (queue->size == queue->capacity);  }
+{  return ((unsigned)queue->size == queue->capacity);  }
 
 // Queue is empty when size is 0
 int isEmpty(struct Queue* queue)

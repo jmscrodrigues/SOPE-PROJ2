@@ -194,8 +194,8 @@ struct tlv_reply closeServer(struct tlv_request request, int threadNo) {
 
     struct rep_shutdown shut;
     int work = 0;
-    for (unsigned int i = 0; i < threadNumber; i++) {
-        if (workingThreads) {
+    for (int i = 0; i < threadNumber; i++) {
+        if (workingThreads[i]) {
             work++;
         }
     }
@@ -204,6 +204,7 @@ struct tlv_reply closeServer(struct tlv_request request, int threadNo) {
     struct tlv_reply reply;
     reply.value = resp_val;
     reply.type = OP_SHUTDOWN;
+    reply.value.shutdown = shut;
 
     if (request.value.header.account_id == 0) {
         serverUp = false;
@@ -221,7 +222,7 @@ struct tlv_reply closeServer(struct tlv_request request, int threadNo) {
 }
 
 bool existingActiveThread(int threadNo) {
-    for (unsigned int i = 0; i < threadNumber; i++) {
+    for ( int i = 0; i < threadNumber; i++) {
         if (i != threadNo) {
             if (workingThreads[i]) {
                 return false;
