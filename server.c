@@ -149,6 +149,8 @@ void * threadInit(void * args) {
 
         requestHandler(request, threadNo);
     }
+
+    return NULL;
 }
 
 struct tlv_reply requestParser(struct tlv_request request, int threadNo) {
@@ -170,9 +172,12 @@ struct tlv_reply requestParser(struct tlv_request request, int threadNo) {
         return closeServer(request, threadNo);
         break;
 
-    default:
+    case __OP_MAX_NUMBER:
         break;
     }
+    struct tlv_reply nullReply;
+    nullReply.length = 0;
+    return nullReply;
 }
 
 struct tlv_request requestFromQueue() {

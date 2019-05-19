@@ -236,7 +236,8 @@ void getExternalCommand(char* outPutStr, char* commands[]) {
         dup(des_p[0]);         //replacing stdin with pipe read
         close(des_p[1]);       //closing pipe write
         close(des_p[0]);
-        int n = read(STDIN_FILENO,outPutStr,HASH_LEN);
+        read(STDIN_FILENO,outPutStr,HASH_LEN);
+        // haha
     }
 }
 
