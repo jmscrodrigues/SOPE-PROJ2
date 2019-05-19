@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
     tlv_req.value = req_value;
     //------------------
 
-    int ulog = open(USER_LOGFILE, O_RDWR |O_CREAT |O_TRUNC|O_APPEND,0666);
+    int ulog = open(USER_LOGFILE, O_RDWR |O_CREAT |O_APPEND,0666);
     int fd = open(SERVER_FIFO_PATH, O_WRONLY );
 
     write(fd,&tlv_req, sizeof(tlv_req)); //mandar mensagem tlv
