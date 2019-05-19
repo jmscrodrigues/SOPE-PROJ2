@@ -44,7 +44,6 @@ struct tlv_reply addAccount(struct tlv_request request, int threadNo) {
     if(checkPassword(request)) {
         if (request.value.header.account_id == 0) {
             if (usedIds[request.value.create.account_id] == 0) {
-
                 if (request.value.create.balance >= MIN_BALANCE) {
                     if (request.value.create.balance <= MAX_BALANCE) {
                         if (strlen(request.value.create.password) > MIN_PASSWORD_LEN) {
@@ -128,7 +127,7 @@ struct tlv_reply transferMoney(struct tlv_request request, int threadNo) {
         if (request.value.header.account_id != 0) {
             if (request.value.header.account_id != request.value.transfer.account_id) {
                 if (usedIds[request.value.transfer.account_id] != 0) {
-                    if (((accounts[request.value.header.account_id].bank.balance) - (request.value.transfer.amount)) > MIN_BALANCE) {
+                    if ((accounts[request.value.header.account_id].bank.balance >= request.value.transfer.amount)) {
                         if (((accounts[request.value.transfer.account_id].bank.balance) + (request.value.transfer.amount)) < MAX_BALANCE) {
                             accounts[request.value.transfer.account_id].bank.balance += request.value.transfer.amount;
                             accounts[request.value.header.account_id].bank.balance -= request.value.transfer.amount;

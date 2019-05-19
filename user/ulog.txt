@@ -1,1 +1,2 @@
-E - 21896 - [ 62 bytes] 21896 (0000, "ababababab")           [    3 ms] SHUTDOWN
+E - 03315 - [ 62 bytes] 03315 (0000, "ababababab")           [    2 ms] SHUTDOWN
+R - 03315 - [ 12 bytes] 0000 SHUTDOWN           OK 0

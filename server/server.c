@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     time_t t;
     srand((unsigned) time(&t));
 
-    slog_fd =STDOUT_FILENO;// open(SERVER_LOGFILE, O_RDWR |O_CREAT |O_TRUNC|O_APPEND, 0666);
+    slog_fd =open(SERVER_LOGFILE, O_RDWR |O_CREAT |O_TRUNC|O_APPEND, 0666);
 
     if (argc != 3) {
         printf("Wrong number of arguments\n");
@@ -89,26 +89,16 @@ int main(int argc, char* argv[]) {
         enqueue(queue,tlv_req);
         logRequest(slog_fd,tlv_req.value.header.pid,&tlv_req);
     }
-    printf("yoyo\n");
 
     close(fd);
 
-    printf("yoyo\n");
-
     for(i =0; i < num_threads; i++) {
-      printf("thread: %d\n", i);
-        /**in = i;
-        if(pthread_join(t_ids[i],NULL) != 0) {
-            fprintf(stderr, "Error joining thread %d\n", i);
-        }
-        else logBankOfficeClose(slog_fd, i, t_ids[i]);*/
         logBankOfficeClose(slog_fd, i, t_ids[i]);
         pthread_cancel(t_ids[i]);
     }
 
     free(in);
     free(acc);
-    printf("UNLINKED, ABOUT TO RETURN\n");
     return 0;
 }
 
@@ -189,7 +179,7 @@ struct tlv_request requestFromQueue() {
     tlv_request_t request;
     request = dequeue(queue);
     logRequest(slog_fd, request.value.header.pid,&request);
-    return request;  // espero que esteja correto
+    return request;
 }
 
 
@@ -216,9 +206,7 @@ struct tlv_reply closeServer(struct tlv_request request, int threadNo) {
     reply.type = OP_SHUTDOWN;
 
     if (request.value.header.account_id == 0) {
-        printf("\n%d\n", serverUp);
         serverUp = false;
-        printf("\n%d\n", serverUp);
         while (!existingActiveThread(threadNo)) {
         }
         resp.ret_code = RC_OK;
@@ -234,11 +222,11 @@ struct tlv_reply closeServer(struct tlv_request request, int threadNo) {
 
 bool existingActiveThread(int threadNo) {
     for (unsigned int i = 0; i < threadNumber; i++) {
-      if (i != threadNo) {
-        if (workingThreads[i]) {
-            return false;
+        if (i != threadNo) {
+            if (workingThreads[i]) {
+                return false;
+            }
         }
-      }
-  }
-  return true;
+    }
+    return true;
 }
