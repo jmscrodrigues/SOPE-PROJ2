@@ -21,10 +21,9 @@ static bool serverUp = true;
 int slog_fd;
 
 void * threadInit(void * args);
-bool existingActiveThread(int threadNo);
 struct tlv_reply requestParser(struct tlv_request request, int threadNo);
 struct tlv_request requestFromQueue();
-struct tlv_reply closeServer(struct tlv_request request, int threadNo);
+struct tlv_reply closeServer(struct tlv_request request);
 bool checkPassword(struct tlv_request req);
 
 int main(int argc, char* argv[]) {
@@ -169,7 +168,7 @@ struct tlv_reply requestParser(struct tlv_request request, int threadNo) {
         break;
 
     case OP_SHUTDOWN:
-        return closeServer(request, threadNo);
+        return closeServer(request);
         break;
 
     case __OP_MAX_NUMBER:
@@ -188,7 +187,7 @@ struct tlv_request requestFromQueue() {
 }
 
 
-struct tlv_reply closeServer(struct tlv_request request, int threadNo) {
+struct tlv_reply closeServer(struct tlv_request request) {
     struct rep_header resp;
     resp.account_id = request.value.header.account_id;
 
@@ -213,7 +212,7 @@ struct tlv_reply closeServer(struct tlv_request request, int threadNo) {
 
     if (request.value.header.account_id == 0) {
         serverUp = false;
-        while (!existingActiveThread(threadNo)) {
+        while (isEmpty(queue) != 0) {
         }
         resp.ret_code = RC_OK;
     }
@@ -224,15 +223,4 @@ struct tlv_reply closeServer(struct tlv_request request, int threadNo) {
     reply.length = sizeof(resp_val);
     return reply;
 
-}
-
-bool existingActiveThread(int threadNo) {
-    for ( int i = 0; i < threadNumber; i++) {
-        if (i != threadNo) {
-            if (workingThreads[i]) {
-                return false;
-            }
-        }
-    }
-    return true;
 }
