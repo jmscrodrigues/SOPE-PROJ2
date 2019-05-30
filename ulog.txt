@@ -1,0 +1,104 @@
+E - 03901 - [ 62 bytes] 03901 (0000, "ababababab")           [    3 ms] CREATE   0003        100€ "1212121212"
+R - 03901 - [ 12 bytes] 0003   CREATE    ID_IN_USE
+E - 03933 - [ 62 bytes] 03933 (0000, "ababababab")           [    3 ms] CREATE   0003        100€ "1212121212"
+R - 03933 - [ 12 bytes] 0003   CREATE    ID_IN_USE
+E - 03944 - [ 62 bytes] 03944 (0000, "ababababab")           [    3 ms] CREATE   0003        100€ "1212121212"
+R - 03944 - [ 12 bytes] 0003   CREATE    ID_IN_USE
+E - 03953 - [ 62 bytes] 03953 (0000, "ababababab")           [    3 ms] CREATE   0003        100€ "1212121212"
+R - 03953 - [ 12 bytes] 0003   CREATE    ID_IN_USE
+E - 03955 - [ 62 bytes] 03955 (0000, "ababababab")           [    3 ms] CREATE   0003        100€ "1212121212"
+R - 03955 - [ 12 bytes] 0003   CREATE    ID_IN_USE
+E - 03957 - [ 62 bytes] 03957 (0000, "ababababab")           [    3 ms] CREATE   0003        100€ "1212121212"
+R - 03957 - [ 12 bytes] 0003   CREATE    ID_IN_USE
+E - 03317 - [ 62 bytes] 03317 (0000, "wrong_password")       [   10 ms] CREATE   0001         25€ "top_secret"
+E - 03329 - [ 62 bytes] 03329 (0000, "ultra_top_secret")     [   10 ms] CREATE   0001         25€ "top_secret"
+R - 03329 - [ 12 bytes] 0001   CREATE           OK
+E - 03332 - [ 62 bytes] 03332 (0001, "top_secret")           [ 1234 ms] BALANCE 
+E - 03333 - [ 62 bytes] 03333 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+E - 03334 - [ 62 bytes] 03334 (0000, "ultra_top_secret")     [ 1000 ms] CREATE   0002          3€ "a_secret"
+E - 03337 - [ 62 bytes] 03337 (0001, "top_secret")           [ 5000 ms] SHUTDOWN
+E - 03339 - [ 62 bytes] 03339 (0001, "top_secret")           [ 5000 ms] BALANCE 
+E - 03335 - [ 62 bytes] 03335 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+E - 03336 - [ 62 bytes] 03336 (0002, "a_secret")             [ 8900 ms] BALANCE 
+E - 03338 - [ 62 bytes] 03338 (0000, "ultra_top_secret")     [ 5000 ms] SHUTDOWN
+R - 03334 - [ 12 bytes] 0002   CREATE        OTHER
+R - 03332 - [ 12 bytes] 0001  BALANCE           OK         25€
+R - 03333 - [ 12 bytes] 0001 TRANSFER ID_NOT_FOUND         25€
+R - 03337 - [ 12 bytes] 0001 SHUTDOWN ID_NOT_FOUND 3
+R - 03335 - [ 12 bytes] 0001 TRANSFER ID_NOT_FOUND         25€
+E - 03990 - [ 62 bytes] 03990 (0000, "wrong_password")       [   10 ms] CREATE   0001         25€ "top_secret"
+R - 03990 - [ 12 bytes] 0001   CREATE    OP_NALLOW
+E - 03992 - [ 62 bytes] 03992 (0000, "ultra_top_secret")     [   10 ms] CREATE   0001         25€ "top_secret"
+R - 03992 - [ 12 bytes] 0001   CREATE           OK
+E - 03996 - [ 62 bytes] 03996 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+E - 03995 - [ 62 bytes] 03995 (0001, "top_secret")           [ 1234 ms] BALANCE 
+E - 03997 - [ 62 bytes] 03997 (0000, "ultra_top_secret")     [ 1000 ms] CREATE   0002          3€ "a_secret"
+E - 03998 - [ 62 bytes] 03998 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+E - 04001 - [ 62 bytes] 04001 (0000, "ultra_top_secret")     [ 5000 ms] SHUTDOWN
+E - 03999 - [ 62 bytes] 03999 (0002, "a_secret")             [ 8900 ms] BALANCE 
+E - 04000 - [ 62 bytes] 04000 (0001, "top_secret")           [ 5000 ms] SHUTDOWN
+E - 04002 - [ 62 bytes] 04002 (0001, "top_secret")           [ 5000 ms] BALANCE 
+R - 03995 - [ 12 bytes] 0001  BALANCE           OK         25€
+R - 03996 - [ 12 bytes] 0001 TRANSFER ID_NOT_FOUND         25€
+R - 04001 - [ 12 bytes] 0000 SHUTDOWN           OK 2
+E - 04064 - [ 62 bytes] 04064 (0000, "wrong_password")       [   10 ms] CREATE   0001         25€ "top_secret"
+R - 04064 - [ 12 bytes] 0001   CREATE    OP_NALLOW
+E - 04066 - [ 62 bytes] 04066 (0000, "ultra_top_secret")     [   10 ms] CREATE   0001         25€ "top_secret"
+R - 04066 - [ 12 bytes] 0001   CREATE           OK
+E - 04076 - [ 62 bytes] 04076 (0001, "top_secret")           [ 1234 ms] BALANCE 
+E - 04077 - [ 62 bytes] 04077 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+E - 04078 - [ 62 bytes] 04078 (0000, "ultra_top_secret")     [ 1000 ms] CREATE   0002          3€ "a_secret"
+E - 04079 - [ 62 bytes] 04079 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+E - 04080 - [ 62 bytes] 04080 (0002, "a_secret")             [ 8900 ms] BALANCE 
+E - 04081 - [ 62 bytes] 04081 (0001, "top_secret")           [ 5000 ms] SHUTDOWN
+E - 04082 - [ 62 bytes] 04082 (0000, "ultra_top_secret")     [ 5000 ms] SHUTDOWN
+E - 04083 - [ 62 bytes] 04083 (0001, "top_secret")           [ 5000 ms] BALANCE 
+R - 04076 - [ 12 bytes] 0001  BALANCE           OK         25€
+R - 04077 - [ 12 bytes] 0001 TRANSFER ID_NOT_FOUND         25€
+R - 04078 - [ 12 bytes] 0002   CREATE        OTHER
+R - 04079 - [ 12 bytes] 0001 TRANSFER ID_NOT_FOUND         25€
+R - 04082 - [ 12 bytes] 0000 SHUTDOWN    OP_NALLOW 2
+R - 04081 - [ 12 bytes] 0001 SHUTDOWN           OK 2
+E - 04219 - [ 62 bytes] 04219 (0000, "wrong_password")       [   10 ms] CREATE   0001         25€ "top_secret"
+R - 04219 - [ 12 bytes] 0001   CREATE    OP_NALLOW
+E - 04221 - [ 62 bytes] 04221 (0000, "ultra_top_secret")     [   10 ms] CREATE   0001         25€ "top_secret"
+R - 04221 - [ 12 bytes] 0001   CREATE           OK
+E - 04224 - [ 62 bytes] 04224 (0001, "top_secret")           [ 1234 ms] BALANCE 
+E - 04225 - [ 62 bytes] 04225 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+E - 04226 - [ 62 bytes] 04226 (0000, "ultra_top_secret")     [ 1000 ms] CREATE   0002          3€ "a_secret"
+E - 04227 - [ 62 bytes] 04227 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+E - 04230 - [ 62 bytes] 04230 (0000, "ultra_top_secret")     [ 5000 ms] SHUTDOWN
+E - 04229 - [ 62 bytes] 04229 (0001, "top_secret")           [ 5000 ms] SHUTDOWN
+E - 04231 - [ 62 bytes] 04231 (0001, "top_secret")           [ 5000 ms] BALANCE 
+E - 04228 - [ 62 bytes] 04228 (0002, "a_secret")             [ 8900 ms] BALANCE 
+R - 04226 - [ 12 bytes] 0002   CREATE        OTHER
+R - 04225 - [ 12 bytes] 0001 TRANSFER ID_NOT_FOUND         25€
+R - 04227 - [ 12 bytes] 0001 TRANSFER ID_NOT_FOUND         25€
+E - 04359 - [ 62 bytes] 04359 (0000, "wrong_password")       [   10 ms] CREATE   0001         25€ "top_secret"
+R - 04359 - [ 12 bytes] 0001   CREATE    OP_NALLOW
+E - 04361 - [ 62 bytes] 04361 (0000, "ultra_top_secret")     [   10 ms] CREATE   0001         25€ "top_secret"
+R - 04361 - [ 12 bytes] 0001   CREATE           OK
+E - 04364 - [ 62 bytes] 04364 (0001, "top_secret")           [ 1234 ms] BALANCE 
+E - 04365 - [ 62 bytes] 04365 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+E - 04366 - [ 62 bytes] 04366 (0000, "ultra_top_secret")     [ 1000 ms] CREATE   0002          3€ "a_secret"
+E - 04367 - [ 62 bytes] 04367 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+E - 04369 - [ 62 bytes] 04369 (0001, "top_secret")           [ 5000 ms] SHUTDOWN
+E - 04371 - [ 62 bytes] 04371 (0001, "top_secret")           [ 5000 ms] BALANCE 
+E - 04368 - [ 62 bytes] 04368 (0002, "a_secret")             [ 8900 ms] BALANCE 
+E - 04370 - [ 62 bytes] 04370 (0000, "ultra_top_secret")     [ 5000 ms] SHUTDOWN
+R - 04366 - [ 12 bytes] 0002   CREATE        OTHER
+R - 04365 - [ 12 bytes] 0001 TRANSFER ID_NOT_FOUND         25€
+R - 04369 - [ 12 bytes] 0001 SHUTDOWN           OK 3
+E - 04529 - [ 62 bytes] 04529 (0000, "wrong_password")       [   10 ms] CREATE   0001         25€ "top_secret"
+R - 04529 - [ 12 bytes] 0001   CREATE    OP_NALLOW
+E - 04538 - [ 62 bytes] 04538 (0000, "ultra_top_secret")     [   10 ms] CREATE   0001         25€ "top_secret"
+R - 04538 - [ 12 bytes] 0001   CREATE           OK
+E - 04541 - [ 62 bytes] 04541 (0001, "top_secret")           [ 1234 ms] BALANCE 
+E - 04542 - [ 62 bytes] 04542 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+E - 04543 - [ 62 bytes] 04543 (0000, "ultra_top_secret")     [ 1000 ms] CREATE   0002          3€ "a_secret"
+E - 04546 - [ 62 bytes] 04546 (0001, "top_secret")           [ 5000 ms] SHUTDOWN
+E - 04547 - [ 62 bytes] 04547 (0000, "ultra_top_secret")     [ 5000 ms] SHUTDOWN
+E - 04545 - [ 62 bytes] 04545 (0002, "a_secret")             [ 8900 ms] BALANCE 
+E - 04549 - [ 62 bytes] 04549 (0001, "top_secret")           [ 5000 ms] BALANCE 
+R - 04542 - [ 12 bytes] 0001 TRANSFER ID_NOT_FOUND         25€
+R - 04546 - [ 12 bytes] 0001 SHUTDOWN ID_NOT_FOUND 2

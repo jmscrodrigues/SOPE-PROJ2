@@ -110,6 +110,8 @@ struct tlv_reply transferMoney(struct tlv_request request, int threadNo) {
     if (usedIds[request.value.transfer.account_id] != 0 && usedIds[request.value.header.account_id] != 0) {
         pthread_mutex_lock(&(accounts[request.value.transfer.account_id].mutex));
         pthread_mutex_lock(&(accounts[request.value.header.account_id].mutex));
+        logSyncMech(slog_fd,threadNo,SYNC_OP_MUTEX_LOCK,SYNC_ROLE_CONSUMER,request.value.header.account_id);
+        logSyncMech(slog_fd,threadNo,SYNC_OP_MUTEX_LOCK,SYNC_ROLE_CONSUMER,request.value.transfer.account_id);
 
         usleep(request.value.header.op_delay_ms);
         logSyncDelay(slog_fd,threadNo,request.value.header.account_id, request.value.header.op_delay_ms);

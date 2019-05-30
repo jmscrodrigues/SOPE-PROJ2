@@ -1,0 +1,42 @@
+I - 00000 - OPEN  140377138005760
+S - 00000 - C09999 MUTEX_LOCK
+I - 00001 - OPEN  140377129613056
+I - 00002 - OPEN  140377121220352
+R - 04529 - [ 62 bytes] 04529 (0000, "wrong_password")       [   10 ms] CREATE   0001         25€ "top_secret"
+R - 04529 - [ 62 bytes] 04529 (0000, "wrong_password")       [   10 ms] CREATE   0001         25€ "top_secret"
+S - 00000 - C09999 MUTEX_UNLOCK
+S - 00002 - C09999 MUTEX_LOCK
+A - 00000 - A00000 [   10 ms]
+E - 00000 - [ 12 bytes] 0001   CREATE    OP_NALLOW
+R - 04538 - [ 62 bytes] 04538 (0000, "ultra_top_secret")     [   10 ms] CREATE   0001         25€ "top_secret"
+R - 04538 - [ 62 bytes] 04538 (0000, "ultra_top_secret")     [   10 ms] CREATE   0001         25€ "top_secret"
+S - 00002 - C09999 MUTEX_UNLOCK
+S - 00002 - C09999 MUTEX_LOCK
+A - 00002 - A00000 [   10 ms]
+E - 00002 - [ 12 bytes] 0001   CREATE           OK
+R - 04541 - [ 62 bytes] 04541 (0001, "top_secret")           [ 1234 ms] BALANCE 
+R - 04542 - [ 62 bytes] 04542 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+R - 04541 - [ 62 bytes] 04541 (0001, "top_secret")           [ 1234 ms] BALANCE 
+S - 00000 - C09999 MUTEX_LOCK
+R - 04542 - [ 62 bytes] 04542 (0001, "top_secret")           [ 5670 ms] TRANSFER 0002         10€
+S - 00000 - C09999 MUTEX_UNLOCK
+R - 04543 - [ 62 bytes] 04543 (0000, "ultra_top_secret")     [ 1000 ms] CREATE   0002          3€ "a_secret"
+S - 00002 - C09999 MUTEX_LOCK
+R - 04543 - [ 62 bytes] 04543 (0000, "ultra_top_secret")     [ 1000 ms] CREATE   0002          3€ "a_secret"
+S - 00002 - C09999 MUTEX_UNLOCK
+S - 00002 - C09999 MUTEX_UNLOCK
+R - 04546 - [ 62 bytes] 04546 (0001, "top_secret")           [ 5000 ms] SHUTDOWN
+R - 04547 - [ 62 bytes] 04547 (0000, "ultra_top_secret")     [ 5000 ms] SHUTDOWN
+R - 04545 - [ 62 bytes] 04545 (0002, "a_secret")             [ 8900 ms] BALANCE 
+R - 04549 - [ 62 bytes] 04549 (0001, "top_secret")           [ 5000 ms] BALANCE 
+E - 00000 - [ 12 bytes] 0001 TRANSFER ID_NOT_FOUND         25€
+S - 00000 - C09999 MUTEX_LOCK
+R - 04546 - [ 62 bytes] 04546 (0001, "top_secret")           [ 5000 ms] SHUTDOWN
+S - 00000 - C09999 MUTEX_UNLOCK
+E - 00000 - [ 12 bytes] 0001 SHUTDOWN ID_NOT_FOUND 2
+S - 00000 - C09999 MUTEX_LOCK
+R - 04547 - [ 62 bytes] 04547 (0000, "ultra_top_secret")     [ 5000 ms] SHUTDOWN
+S - 00000 - C09999 MUTEX_UNLOCK
+I - 00000 - CLOSE 140377138005760
+I - 00001 - CLOSE 140377129613056
+I - 00002 - CLOSE 140377121220352
